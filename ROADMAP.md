@@ -67,7 +67,22 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
 *Ideas under consideration — not yet scheduled:*
 
-- **Shared settings across machines** — a `shared.json` (committed to the repo, unlike `machine.json`) that carries settings, command preferences, and canonical variable names. The design principle: variable *names* are portable; path *values* are machine-specific. If every machine maps `"notes"` → wherever notes live locally, then any command referencing `$NOTES` works everywhere without modification. `shared.json` would define which variable names exist and what they represent, so someone syncing across machines can see at a glance what needs mapping in their local `machine.json`.
+- **Shared settings across machines** — a `shared.json` for carrying canonical variable names and settings across machines. The design principle: variable *names* are portable; path *values* are machine-specific.
+
+  **Architecture:**
+  ```
+  Spyced-Concepts/claude-dotfiles  (public — this repo)
+  └── shared.json.template         schema only; defines the concept, not your names
+
+  yourname/my-dotfiles             (your private fork or private repo)
+  ├── shared.json                  YOUR canonical variable names ($NOTES, $WORK, etc.)
+  ├── CLAUDE.md                    your customised instructions
+  └── commands/                    your custom commands
+
+  ~/.claude/machine.json           machine-local; maps $NOTES → /actual/path/on/this/machine
+  ```
+
+  If every machine maps `"notes"` → wherever notes live locally, then any command referencing `$NOTES` works everywhere without modification. `shared.json` lives in the user's *private* fork — never in the public tool repo. The public repo ships only the schema and template.
 
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
