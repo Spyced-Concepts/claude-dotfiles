@@ -67,11 +67,18 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
 *Ideas under consideration — not yet scheduled:*
 
+- **Shared settings across machines** — a `shared.json` (committed to the repo, unlike `machine.json`) that carries settings, command preferences, and canonical variable names. The design principle: variable *names* are portable; path *values* are machine-specific. If every machine maps `"notes"` → wherever notes live locally, then any command referencing `$NOTES` works everywhere without modification. `shared.json` would define which variable names exist and what they represent, so someone syncing across machines can see at a glance what needs mapping in their local `machine.json`.
+
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
+
 - **Community command gallery** — curated `/commands` contributions from the community
+
 - **Multi-profile support** — switch between different CLAUDE.md profiles per project type (e.g., a "security review" profile vs a "writing" profile)
-- **Validation** — `setup.sh --validate` checks that all paths in `machine.json` actually exist
+
+- **Validation** — `setup.sh --validate` checks that all paths in `machine.json` actually exist and that all variables referenced in commands are defined
+
 - **Windows native** — proper PowerShell setup script alongside the Git Bash version
+
 - **Homebrew formula** — `brew install claude-dotfiles` for macOS
 
 ---
