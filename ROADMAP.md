@@ -37,13 +37,27 @@ Right now, claude-dotfiles is Claude Code-specific — `CLAUDE.md`, the `command
 | `adapters/claude-code/` | ✓ Current implementation |
 | `adapters/aider/` | Planned |
 | `adapters/gemini-cli/` | Planned |
-| Community adapters | Welcome — see CONTRIBUTORS.md |
 
 **Community input wanted:** Which AI CLIs do you use? What would a good adapter look like for your tool? [Open a discussion](https://github.com/Spyced-Concepts/claude-dotfiles/discussions) or feature request.
 
 ### 🔄 v1.2.0 — Re-run setup for new settings
 
 When you run `/update` and a new version introduces new `machine.json` fields, you should be able to configure them without a full reinstall. `setup.sh --reconfigure` will diff your installed `machine.json` against the template and guide you through any new settings only.
+
+### 🔄 v1.2.0 — Personal config as a separate private repo
+
+The recommended pattern for personal configuration is a completely **separate private repo** — not a fork of claude-dotfiles. You clone the public tool cleanly and keep your personal config (`shared.json`, custom `CLAUDE.md`, custom commands) in your own private repo with no connection to this one.
+
+**Why not a fork:** forks invite accidental PRs of personal config into the public repo, creating unnecessary admin. Keep them completely separate.
+
+**How it works:**
+```
+Spyced-Concepts/claude-dotfiles   public tool — clone, never fork
+yourname/my-claude-config         your private repo — shared.json, custom commands, CLAUDE.md overrides
+~/.claude/machine.json            machine-local — paths only, never committed
+```
+
+`setup.sh` will gain an option to point at your personal config repo and layer it on top of the public tool automatically.
 
 ---
 
@@ -95,6 +109,16 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 - **Windows native** — proper PowerShell setup script alongside the Git Bash version
 
 - **Homebrew formula** — `brew install claude-dotfiles` for macOS
+
+### Hosted config service *(commercial — future)*
+
+A managed personal config service for users who don't want to maintain a private git repo. Your `shared.json`, custom commands, and CLAUDE.md overrides are stored securely and synced automatically across all your machines — no git required.
+
+```bash
+atlink claude init --hosted   # coming in a future atlink release
+```
+
+This is the natural commercial tier alongside the free self-hosted tool. More details when atlink reaches its commercial release.
 
 ---
 

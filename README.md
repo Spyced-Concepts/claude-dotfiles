@@ -40,6 +40,18 @@ Any folder of markdown files Claude reads to understand your context. Tool-agnos
 - VS Code workspace docs
 - Anything else in markdown
 
+### Personal configuration
+
+Your personal config (`shared.json`, custom commands, your own `CLAUDE.md` additions) lives in a **separate private repo** — not a fork of this one. Clone the public tool cleanly; keep your personal config entirely separate.
+
+```
+Spyced-Concepts/claude-dotfiles   ← clone this; never fork it
+yourname/my-claude-config         ← your private repo; your config
+~/.claude/machine.json            ← local paths; never committed anywhere
+```
+
+A hosted config service (no git required) is on the [roadmap](ROADMAP.md).
+
 ---
 
 ## Quick start
