@@ -60,14 +60,27 @@ refactor: simplify machine.json validation in setup.sh
 
 ## Submitting a pull request
 
-1. **Fork** the repo and create your branch from `functional-test` (not `main`)
-2. Make your changes
-3. Test on at least one OS — note which in the PR description
-4. Update `VERSION.md` if your change is user-facing
-5. Open a PR against `functional-test`
-6. Describe what changed and why; include OS tested
+1. **Clone** the repo (do not fork) — see README for why
+2. Create your branch from `main`: `git checkout -b feature/short-description`
+3. Make your changes
+4. Test on at least one OS — note which in the PR description
+5. Update `VERSION.md` if your change is user-facing
+6. Open a PR against `functional-test`
+7. Describe what changed and why; include OS tested
 
 PRs directly against `main` will not be accepted.
+
+---
+
+## Maintainer workflow
+
+Maintainers follow the same branch workflow as contributors — no exceptions:
+
+```
+feature/description  →  functional-test  →  release/vX.X.X  →  main
+```
+
+**Admin override** is a break-glass option for genuine emergencies only (e.g. a critical security fix that cannot wait for a full PR cycle). It is not a shortcut for convenience. Every direct push to a protected branch should be treated as a debt that requires a follow-up PR to document what changed and why.
 
 ---
 
