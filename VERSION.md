@@ -6,7 +6,7 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
-## [1.4.0] — pending
+## [1.4.0] — 2026-05-03
 
 ### Added
 
