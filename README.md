@@ -50,6 +50,12 @@ yourname/my-claude-config         ← your private repo; your config
 ~/.claude/machine.json            ← local paths; never committed anywhere
 ```
 
+**Not sure where to start?** Once the public tool is set up, open Claude Code and say:
+
+> *"Help me set up a personal claude-config repo with my own commands and CLAUDE.md"*
+
+Claude will ask you what you need, create the repo structure, and configure everything interactively.
+
 A hosted config service (no git required) is on the [roadmap](ROADMAP.md).
 
 ---
