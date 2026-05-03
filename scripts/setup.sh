@@ -64,21 +64,22 @@ read -p "  Set up built-in commands? (y/n): " setup_commands
 if [ "$setup_commands" = "y" ]; then
   COMMANDS_DIR="$CLAUDE_DIR/commands"
 
+  # Always use a real directory — never a symlink to a directory.
+  # This allows personal commands from a private config repo to be
+  # added alongside (and override) public built-in commands.
   if [ -L "$COMMANDS_DIR" ]; then
-    echo "  ✓ ~/.claude/commands symlink exists — updating ..."
-    ln -sf "$DOTFILES_DIR/commands" "$COMMANDS_DIR"
-  elif [ -d "$COMMANDS_DIR" ]; then
-    echo "  ⚠️  ~/.claude/commands exists as a directory."
-    read -p "     Copy built-in commands into it? (existing files kept) (y/n): " copy_cmds
-    if [ "$copy_cmds" = "y" ]; then
-      cp -n "$DOTFILES_DIR/commands/"*.md "$COMMANDS_DIR/" 2>/dev/null || true
-      echo "  ✓ Built-in commands copied."
-    fi
-  else
-    ln -sf "$DOTFILES_DIR/commands" "$COMMANDS_DIR"
-    echo "  ✓ ~/.claude/commands symlinked."
+    echo "  ⚠️  ~/.claude/commands is a symlink — converting to directory ..."
+    rm "$COMMANDS_DIR"
   fi
 
+  mkdir -p "$COMMANDS_DIR"
+
+  # Symlink each public command file individually
+  for cmd in "$DOTFILES_DIR/commands/"*.md; do
+    [ -f "$cmd" ] || continue
+    ln -sf "$cmd" "$COMMANDS_DIR/$(basename "$cmd")"
+  done
+  echo "  ✓ Built-in commands linked in ~/.claude/commands/"
   echo ""
   echo "  Commands available:"
   for cmd in "$DOTFILES_DIR/commands/"*.md; do
@@ -86,7 +87,8 @@ if [ "$setup_commands" = "y" ]; then
     echo "    $(printf '%-22s' "$name") — $(head -1 "$cmd" | sed 's/^# *//')"
   done
   echo ""
-  echo "  Add your own: create ~/.claude/commands/mycommand.md"
+  echo "  To add personal commands: symlink your own .md files into ~/.claude/commands/"
+  echo "  Personal commands with the same name as a built-in will override it."
   echo "  The file content becomes the instruction Claude runs."
   echo ""
   echo "  ── Command prefix ────────────────────────────────────────"

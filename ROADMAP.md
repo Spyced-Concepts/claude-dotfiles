@@ -8,9 +8,9 @@ This is the public roadmap for claude-dotfiles. Items here reflect our current i
 
 ## Release schedule
 
-**v1.2.0 is the last planned release until June 2026.** The next scheduled release is v1.3.0 — June 2026. An earlier release may be cut if a particularly compelling feature lands and is ready.
+**v1.4.0** — releasing now (ahead of the June cycle). The command dispatch system and built-in command library are compelling enough to ship early.
 
-Features approved in `functional-test` between now and June will accumulate in a `release/v1.3.0` branch when it is opened.
+Next scheduled after v1.4.0: **v1.5.0 — June 2026**.
 
 ---
 
@@ -106,6 +106,10 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
   If every machine maps `"notes"` → wherever notes live locally, then any command referencing `$NOTES` works everywhere without modification. `shared.json` lives in the user's *private* fork — never in the public tool repo. The public repo ships only the schema and template.
 
+- **Proper system install** — currently claude-dotfiles assumes it lives in `~/Projects/` or `~/`. A mature tool should install to a proper system location (`~/.local/share/claude-dotfiles/` on Linux, Homebrew Cellar on macOS, a proper npm global package, etc.) and derive all paths from its installed location — never from assumptions about the user's home directory structure. The repo stays open source on GitHub; only the install mechanism changes. Homebrew formula and npm package are the target delivery mechanisms. All internal path resolution should use symlinks (`readlink ~/.claude/CLAUDE.md`) rather than hardcoded paths.
+
+- **Command override (private > public)** — `~/.claude/commands/` is a real directory containing individual symlinks from both the public tool and any personal config repo. Personal commands with the same name as a public built-in override it automatically (`ln -sf` overwrites the symlink). This enables full customisation of any built-in command — replace `daily.md` with your own version and it just works. The public tool's `setup.sh` already implements this (individual file symlinks, not directory symlink). Personal config repos should do the same and run after the public setup.
+
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
 - **Community command gallery** — curated `/commands` contributions from the community
@@ -127,6 +131,35 @@ atlink claude init --hosted   # coming in a future atlink release
 ```
 
 This is the natural commercial tier alongside the free self-hosted tool. More details when atlink reaches its commercial release.
+
+---
+
+## Strategic direction — beyond developers
+
+Claude Code is positioned as a developer tool, but its capabilities extend far beyond software development. The ability to read local files, run commands, and maintain persistent context via `~/.claude/CLAUDE.md` makes it genuinely useful for any knowledge worker who works with documents on their computer.
+
+**claude-dotfiles exists to make this accessible.** The knowledge directory system means Claude reads your actual files — your research, your notes, your project documents — and understands your specific work rather than starting from scratch every conversation.
+
+**Target non-developer use cases:**
+
+| Who | What they bring to Claude | What Claude gives back |
+|---|---|---|
+| Writers | Research notes, character docs, plot outlines, drafts | A collaborator who has read everything and remembers it |
+| Filmmakers | Scripts, production notes, shot lists, research | A script editor and production assistant |
+| Designers | Briefs, brand guidelines, client notes, inspiration | A briefed creative partner |
+| Advertisers | Campaign notes, audience research, copy drafts | A copywriter who knows the brief |
+| Researchers | Papers, notes, source material, bibliography | A research assistant who has read the literature |
+| Small business owners | Processes, client notes, templates | An assistant who knows how the business works |
+
+**What needs to happen to reach this audience:**
+
+- ✅ **`curl` one-line install** — no git or npm knowledge required *(added v1.4.0)*
+- ✅ **Conversational first-run** — Claude asks friendly questions and builds the config from answers *(added v1.4.0)*
+- 🔄 **Plain language throughout** — documentation written for humans, not engineers
+- 🔄 **npm package / Homebrew** — `brew install claude-dotfiles` or `npm install -g claude-dotfiles`
+- 🔄 **Windows installer** — no Git Bash required
+- 🔄 **Non-developer starter commands** — built-in commands for writing, research, creative work
+- 🔄 **Hosted config service** — no git required for cross-machine sync
 
 ---
 
