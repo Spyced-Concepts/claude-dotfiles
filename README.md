@@ -146,17 +146,31 @@ claude-dotfiles/
   "name": "macbook-pro",
   "os": "macos",
   "home": "/Users/yourname",
+  "knowledge_root": "/Users/yourname",
   "knowledge_dirs": {
-    "notes": "/Users/yourname/notes",
-    "work": "/Users/yourname/work-docs"
+    "notes": "/Users/yourname/notes"
   },
-  "projects": "/Users/yourname/Projects"
+  "project_root": "/Users/yourname/Projects",
+  "command_prefix_enabled": false,
+  "command_prefix": "--"
 }
 ```
 
 Knowledge directory keys become uppercase variables in your Claude sessions:
 - `"notes"` → `$NOTES`
-- `"work"` → `$WORK`
+
+### Enabling custom commands
+
+Custom commands are **disabled by default**. To enable:
+
+1. Set `command_prefix_enabled: true` in `~/.claude/machine.json`
+2. Set your preferred prefix — `--` is the default, but use anything that feels natural to you (`!`, `>`, `cmd:`, `run:`, etc.)
+3. **Do not use `/`** — Claude Code's CLI intercepts `/word` as built-in commands before they reach Claude
+4. **No prefix:** set `command_prefix` to `""` to use command names directly (e.g. just type `daily`). This works well if your command names are distinctive enough that they won't appear in normal conversation.
+
+Once enabled, type `--daily` (or whatever your prefix is) in any Claude Code session to run a command. Type `--commands` to list all available commands.
+
+> **Not sure what commands are available?** Type `--commands` after enabling.
 
 Reference them in `CLAUDE.md` to point Claude at your context files.
 

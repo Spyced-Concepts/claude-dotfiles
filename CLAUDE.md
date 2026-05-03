@@ -55,15 +55,26 @@ Keep it concise — a morning glance, not a report.
 
 ## Custom Commands
 
-When the user types `/commandname` (e.g. `/daily`, `/health-check`), look for a matching file at `~/.claude/commands/commandname.md` and execute the instructions it contains.
+Custom command dispatch is **disabled by default**. To enable, set in `~/.claude/machine.json`:
 
-Steps:
-1. Extract `commandname` from the `/commandname` input
-2. Check whether `~/.claude/commands/commandname.md` exists: `ls ~/.claude/commands/commandname.md 2>/dev/null`
-3. If found: read the file and execute its instructions as the response to the user's message
-4. If not found: tell the user the command was not found and suggest `/commands` to list available commands
+```json
+{
+  "command_prefix_enabled": true,
+  "command_prefix": "--"
+}
+```
 
-This dispatch applies to any `/word` typed at the start of a message that is not a built-in Claude Code slash command. Built-in commands (`/help`, `/clear`, etc.) take priority.
+Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels natural. The only restriction: do not use `/` as a prefix, as Claude Code's CLI intercepts `/word` as built-in commands before the message reaches Claude.
+
+**When enabled:** at the start of each session, read `command_prefix_enabled` and `command_prefix` from `~/.claude/machine.json`. If enabled, watch for messages that start with the configured prefix.
+
+**Dispatch logic:**
+1. User types `{prefix}commandname` (e.g. `--daily`, `--health-check`)
+2. If `command_prefix` is empty, the command name is used directly (e.g. `daily`) — choose distinctive names to avoid ambiguity with normal conversation
+3. Extract `commandname` by stripping the prefix from the start of the message
+4. Check: `ls ~/.claude/commands/commandname.md 2>/dev/null`
+5. If found: read the file and execute its instructions
+6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
 
 ---
 
