@@ -83,11 +83,48 @@ if [ "$setup_commands" = "y" ]; then
   echo "  Commands available:"
   for cmd in "$DOTFILES_DIR/commands/"*.md; do
     name=$(basename "$cmd" .md)
-    echo "    /$(printf '%-20s' "$name") — $(head -1 "$cmd" | sed 's/^# *//')"
+    echo "    $(printf '%-22s' "$name") — $(head -1 "$cmd" | sed 's/^# *//')"
   done
   echo ""
   echo "  Add your own: create ~/.claude/commands/mycommand.md"
   echo "  The file content becomes the instruction Claude runs."
+  echo ""
+  echo "  ── Command prefix ────────────────────────────────────────"
+  echo "  Commands are disabled by default. To invoke them, enable a"
+  echo "  prefix in ~/.claude/machine.json. The default prefix is --"
+  echo "  so you would type:  --daily  --health-check  --commands"
+  echo ""
+  echo "  You can use any prefix you like: --, !, >, cmd:, run:"
+  echo "  Leave prefix empty to use command names directly (e.g. daily)"
+  echo "  Note: the / prefix won't work — Claude Code intercepts it."
+  echo ""
+  read -p "  Enable command prefix now? (y/n): " enable_prefix
+  if [ "$enable_prefix" = "y" ]; then
+    read -p "  Prefix to use [--]: " chosen_prefix
+    chosen_prefix="${chosen_prefix:---}"
+
+    # Update machine.json with prefix settings
+    if [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
+      python3 - "$MACHINE_JSON" "$chosen_prefix" << 'PYEOF'
+import json, sys
+path, prefix = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    c = json.load(f)
+c["command_prefix_enabled"] = True
+c["command_prefix"] = prefix
+with open(path, "w") as f:
+    json.dump(c, f, indent=2)
+    f.write("\n")
+PYEOF
+      echo "  ✓ Command prefix set to: '${chosen_prefix}' — try ${chosen_prefix}commands"
+    else
+      echo "  ⚠️  Set manually in ~/.claude/machine.json:"
+      echo "     \"command_prefix_enabled\": true,"
+      echo "     \"command_prefix\": \"${chosen_prefix}\""
+    fi
+  else
+    echo "  Enable later by setting command_prefix_enabled: true in machine.json"
+  fi
 fi
 
 # ── machine.json ─────────────────────────────────────────────────────────────

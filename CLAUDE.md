@@ -53,13 +53,36 @@ Keep it concise — a morning glance, not a report.
 
 ---
 
+## Custom Commands
+
+Custom command dispatch is **disabled by default**. To enable, set in `~/.claude/machine.json`:
+
+```json
+{
+  "command_prefix_enabled": true,
+  "command_prefix": "--"
+}
+```
+
+Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels natural. The only restriction: do not use `/` as a prefix, as Claude Code's CLI intercepts `/word` as built-in commands before the message reaches Claude.
+
+**When enabled:** at the start of each session, read `command_prefix_enabled` and `command_prefix` from `~/.claude/machine.json`. If enabled, watch for messages that start with the configured prefix.
+
+**Dispatch logic:**
+1. User types `{prefix}commandname` (e.g. `--daily`, `--health-check`)
+2. If `command_prefix` is empty, the command name is used directly (e.g. `daily`) — choose distinctive names to avoid ambiguity with normal conversation
+3. Extract `commandname` by stripping the prefix from the start of the message
+4. Check: `ls ~/.claude/commands/commandname.md 2>/dev/null`
+5. If found: read the file and execute its instructions
+6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
+
+---
+
 ## Keywords
 
 Reserved words that trigger specific actions:
 
 - **setup** — Create or update `~/.claude/machine.json`. Prompt for each field one at a time (machine name, OS, home directory, projects directory, knowledge directories). Write the completed config to `~/.claude/machine.json`. Then check `~/.claude/settings.json` and flag any path mismatches.
-
-- **commands** — Render the full commands table in tabular format: Command | Type | Description.
 
 ---
 
