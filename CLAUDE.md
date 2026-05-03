@@ -16,6 +16,28 @@
 
 ---
 
+## First Run — Guided Setup
+
+At the very start of each session, check whether `~/.claude/machine.json` exists:
+
+```bash
+cat ~/.claude/machine.json 2>/dev/null
+```
+
+**If the file does not exist:** this is a first run. Greet the user warmly, explain what Claude Code can do for them in plain language, and guide them through setup using simple conversational questions — no technical jargon. Ask:
+
+1. *"What's your name?"*
+2. *"What kind of work do you do? (e.g. writing, design, film, marketing, software — anything)"*
+3. *"Where do you keep your main working documents and notes on this computer?"* — this becomes their knowledge directory; explain it as "the folder Claude will read to understand your work"
+4. *"Where do you keep your code or project files?"* — only ask if they seem technical; skip gracefully if not relevant
+5. *"What would you like to call this computer?"* (e.g. "my laptop", "home mac")
+
+From their answers, build `~/.claude/machine.json` and write it. Confirm what was set up in plain language. Then offer to help them with whatever they came to do.
+
+**Anyone can use Claude Code** — not just developers. Writers, designers, filmmakers, researchers, advertisers, and anyone who works with documents and notes on their computer can benefit. The knowledge directory system means Claude reads your actual files and understands your specific work, rather than starting from scratch every conversation.
+
+---
+
 ## Machine Configuration
 
 At session start, load the machine config:
@@ -53,13 +75,36 @@ Keep it concise — a morning glance, not a report.
 
 ---
 
+## Custom Commands
+
+Custom command dispatch is **disabled by default**. To enable, set in `~/.claude/machine.json`:
+
+```json
+{
+  "command_prefix_enabled": true,
+  "command_prefix": "--"
+}
+```
+
+Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels natural. The only restriction: do not use `/` as a prefix, as Claude Code's CLI intercepts `/word` as built-in commands before the message reaches Claude.
+
+**When enabled:** at the start of each session, read `command_prefix_enabled` and `command_prefix` from `~/.claude/machine.json`. If enabled, watch for messages that start with the configured prefix.
+
+**Dispatch logic:**
+1. User types `{prefix}commandname` (e.g. `--daily`, `--health-check`)
+2. If `command_prefix` is empty, the command name is used directly (e.g. `daily`) — choose distinctive names to avoid ambiguity with normal conversation
+3. Extract `commandname` by stripping the prefix from the start of the message
+4. Check: `ls ~/.claude/commands/commandname.md 2>/dev/null`
+5. If found: read the file and execute its instructions
+6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
+
+---
+
 ## Keywords
 
 Reserved words that trigger specific actions:
 
-- **setup** — Create or update `~/.claude/machine.json`. Prompt for each field one at a time (machine name, OS, home directory, projects directory, knowledge directories). Write the completed config to `~/.claude/machine.json`. Then check `~/.claude/settings.json` and flag any path mismatches.
-
-- **commands** — Render the full commands table in tabular format: Command | Type | Description.
+- **setup** — Create or update `~/.claude/machine.json` and `~/.claude/settings.json` interactively. Read the current values first. Show each field with its current value in brackets — the user presses Enter to keep it or types a new value to replace it. After updating machine.json, show the current settings.json allowlist and offer to add new entries. Never require deleting files to reconfigure — always update in place. Write changes immediately and confirm what changed.
 
 ---
 
