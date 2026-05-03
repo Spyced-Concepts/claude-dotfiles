@@ -33,9 +33,9 @@ release/vX.X.X ─→ main                  PR #3 — monthly release cut
 ```
 
 **Why two PRs?**
-`functional-test` is a validation environment, not a pipeline stage. Features are tested there independently. Once approved, the same feature branch is PR'd separately into the upcoming release branch. This lets you choose which approved features ship in the next release — not everything tested has to ship immediately. Releases are cut on a monthly schedule, not whenever the pipeline fills up.
+`functional-test` is a validation environment, not a pipeline stage. Features are tested there independently. As each feature is approved in `functional-test`, the same feature branch is immediately PR'd into the upcoming release branch — features accumulate in the release branch as they pass, not in a batch at the end. By the time the release date arrives, the release branch is already complete and ready to publish.
 
-**VERSION.md** is updated on the release branch as features land, or as the final commit before the PR to main. Never on a feature branch, never directly on main.
+**VERSION.md** is updated on the release branch — either incrementally as features land, or as a final commit before the PR to main. Never on a feature branch, never directly on main.
 
 ### Branch naming
 
@@ -71,7 +71,7 @@ refactor: simplify machine.json validation in setup.sh
 4. Test on at least one OS — note which in the PR description
 5. Open **PR #1** against `functional-test`
 6. Describe what changed and why; include OS tested
-7. Once PR #1 is approved, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch
+7. Once PR #1 is approved and merged, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch — this happens immediately on approval, not at end of cycle
 
 Do not update `VERSION.md` on your feature branch — that happens on the release branch.
 
