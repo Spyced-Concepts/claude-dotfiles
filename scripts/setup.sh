@@ -119,9 +119,64 @@ echo ""
 
 MACHINE_JSON="$CLAUDE_DIR/machine.json"
 
+_read_json_field() {
+  python3 -c "
+import json, sys
+try:
+    c = json.load(open(sys.argv[1]))
+    print(c.get(sys.argv[2], ''))
+except: print('')
+" "$1" "$2" 2>/dev/null
+}
+
 if [ -f "$MACHINE_JSON" ]; then
-  echo "  ✓ ~/.claude/machine.json already exists — leaving unchanged."
-  echo "    Edit it directly or delete it and re-run this script to reconfigure."
+  echo "  ~/.claude/machine.json exists. Update fields below."
+  echo "  Press Enter to keep the current value shown in [brackets]."
+  echo ""
+
+  cur_name=$(_read_json_field "$MACHINE_JSON" "name")
+  cur_os=$(_read_json_field "$MACHINE_JSON" "os")
+  cur_home=$(_read_json_field "$MACHINE_JSON" "home")
+  cur_project=$(_read_json_field "$MACHINE_JSON" "project_root")
+  cur_kr=$(_read_json_field "$MACHINE_JSON" "knowledge_root")
+
+  read -p "  Machine name [${cur_name:-my-machine}]: " machine_name
+  machine_name="${machine_name:-${cur_name:-my-machine}}"
+
+  read -p "  OS [${cur_os:-linux}]: " machine_os
+  machine_os="${machine_os:-${cur_os:-linux}}"
+
+  read -p "  Home directory [${cur_home:-$HOME}]: " machine_home
+  machine_home="${machine_home:-${cur_home:-$HOME}}"
+
+  read -p "  Projects folder [${cur_project:-$HOME/Projects}]: " project_root
+  project_root="${project_root:-${cur_project:-$HOME/Projects}}"
+
+  read -p "  Knowledge root [${cur_kr:-}]: " knowledge_root
+  knowledge_root="${knowledge_root:-${cur_kr}}"
+
+  # Preserve existing knowledge_dirs; update top-level scalar fields only
+  python3 - "$MACHINE_JSON" "$machine_name" "$machine_os" "$machine_home" "$project_root" "$knowledge_root" << 'PYEOF'
+import json, sys
+path, name, os_, home, proj, kr = sys.argv[1:7]
+with open(path) as f:
+    c = json.load(f)
+c["name"] = name
+c["os"] = os_
+c["home"] = home
+if proj: c["project_root"] = proj
+if kr: c["knowledge_root"] = kr
+elif "knowledge_root" in c and not kr:
+    pass  # keep existing if user left blank
+with open(path, "w") as f:
+    json.dump(c, f, indent=2)
+    f.write("\n")
+PYEOF
+
+  echo ""
+  echo "  ✓ ~/.claude/machine.json updated."
+  echo ""
+  cat "$MACHINE_JSON"
 else
   echo "  Building your machine.json ..."
   echo ""
@@ -271,7 +326,35 @@ if [ ! -f "$SETTINGS_JSON" ]; then
   echo "✓ ~/.claude/settings.json created from template."
   echo "  Edit it to customise your permissions allowlist: $SETTINGS_JSON"
 else
-  echo "✓ ~/.claude/settings.json already exists — leaving unchanged."
+  echo "✓ ~/.claude/settings.json exists."
+  echo ""
+  echo "  Current allowlist entries:"
+  python3 -c "
+import json
+try:
+    c = json.load(open('$SETTINGS_JSON'))
+    for e in c.get('permissions', {}).get('allow', []):
+        print(f'    {e}')
+except: print('    (could not read)')
+" 2>/dev/null
+  echo ""
+  read -p "  Add a new allowlist entry? (paste entry or press Enter to skip): " new_entry
+  while [ -n "$new_entry" ]; do
+    python3 - "$SETTINGS_JSON" "$new_entry" << 'PYEOF'
+import json, sys
+path, entry = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    c = json.load(f)
+allows = c.setdefault("permissions", {}).setdefault("allow", [])
+if entry not in allows:
+    allows.append(entry)
+with open(path, "w") as f:
+    json.dump(c, f, indent=2)
+    f.write("\n")
+PYEOF
+    echo "  ✓ Added: $new_entry"
+    read -p "  Add another? (paste entry or press Enter to skip): " new_entry
+  done
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
