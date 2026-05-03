@@ -41,8 +41,8 @@ main                 ← protected; production; tagged releases only
 | Documentation | `docs/short-description` | `docs/linux-setup-guide` |
 | Release | `release/vX.X.X` | `release/v1.1.0` |
 
-If this project has a Jira project configured, prefix with the ticket ID:
-`CDF-12-feature/windows-symlink-support`
+If you're working on a tracked GitHub Issue, prefix with the issue number:
+`#12-feature/windows-symlink-support`
 
 ### Commit messages
 
@@ -84,14 +84,27 @@ feature/description  →  functional-test  →  release/vX.X.X  →  main
 
 ---
 
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org):
+
+| Type | When | Example |
+|---|---|---|
+| **PATCH** (x.y.**z**) | Bug fixes, docs corrections, small tweaks | v1.2.1 |
+| **MINOR** (x.**y**.0) | New features — monthly release cycle | v1.3.0 |
+| **MAJOR** (**x**.0.0) | Large new features, significant changes | v2.0.0 |
+
 ## Release process
 
-Releases are managed by [Spyced Concepts Ltd.](https://spycedconcepts.co.uk):
+Releases are managed by [Spyced Concepts Ltd.](https://spycedconcepts.co.uk) on a monthly cycle:
 
-1. `functional-test` → `release/vX.X.X` (version bump in `VERSION.md`)
-2. Testing on macOS, Linux, and Windows
-3. `release/vX.X.X` → `main` (merge + tag)
+1. `release/vX.X.X` branch accumulates approved features from their feature branches throughout the cycle
+2. `VERSION.md` updated on the release branch with the final changelog
+3. `release/vX.X.X` → `main` (PR, merge, tag)
 4. GitHub release created with `VERSION.md` notes
+5. `functional-test` synced from `main` to give new features a clean foundation
+
+Releases are tracked via [GitHub Issues](https://github.com/Spyced-Concepts/claude-dotfiles/issues) and [GitHub Discussions](https://github.com/Spyced-Concepts/claude-dotfiles/discussions).
 
 ---
 
