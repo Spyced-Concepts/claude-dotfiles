@@ -1,48 +1,87 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/machine.schema.json",
-  "title": "Machine Configuration",
-  "description": "Machine-specific configuration for claude-dotfiles. Maps canonical variable names to local paths. Never commit this file — it contains paths specific to this machine.",
+  "title": "claude-dotfiles — Machine Configuration",
+  "description": "Machine-specific configuration. Maps canonical variable names to local paths on this machine. Never commit this file — paths are unique to this machine.",
   "type": "object",
   "required": ["name", "os", "home"],
+
+  "examples": [
+    {
+      "name": "macbook-pro",
+      "os": "macos",
+      "home": "/Users/yourname",
+      "project_root": "/Users/yourname/Projects",
+      "knowledge_root": "/Users/yourname",
+      "knowledge_dirs": {
+        "archive": "/Users/yourname/Archive"
+      }
+    },
+    {
+      "name": "zorin-laptop",
+      "os": "linux",
+      "home": "/home/yourname",
+      "project_root": "/zdata/Projects",
+      "knowledge_root": "/home/yourname",
+      "knowledge_dirs": {}
+    },
+    {
+      "name": "work-windows",
+      "os": "windows",
+      "home": "C:\\Users\\yourname",
+      "project_root": "D:\\Projects",
+      "knowledge_dirs": {
+        "work": "C:\\Users\\yourname\\Documents\\work",
+        "notes": "C:\\Users\\yourname\\Documents\\notes"
+      }
+    }
+  ],
+
   "properties": {
     "name": {
       "type": "string",
-      "description": "Human-readable machine name. Use something you'll recognise across machines.",
+      "description": "A short, memorable name for this machine. Used in logs and status output.",
       "examples": ["macbook-pro", "work-laptop", "home-desktop", "zorin-laptop"]
     },
+
     "os": {
       "type": "string",
       "enum": ["macos", "linux", "windows"],
-      "description": "Operating system. Used to generate OS-appropriate commands in Claude sessions."
+      "description": "Operating system. Determines which shell commands Claude generates for this machine.",
+      "examples": ["macos", "linux", "windows"]
     },
+
     "home": {
       "type": "string",
       "description": "Absolute path to your home directory on this machine.",
       "examples": ["/Users/yourname", "/home/yourname", "C:\\Users\\yourname"]
     },
+
+    "project_root": {
+      "type": "string",
+      "description": "Where your code lives — git repositories, source files, compiled artefacts, and build outputs. This is for things you build, not things you write.",
+      "examples": ["/Users/yourname/Projects", "/home/yourname/Projects", "D:\\Projects"]
+    },
+
     "knowledge_root": {
       "type": "string",
-      "description": "Parent folder containing all your knowledge directories. All immediate subdirectories will be auto-discovered and their names used as variable names. Use this instead of listing every directory individually in knowledge_dirs.",
-      "examples": ["/Users/yourname", "/home/yourname/vaults"]
+      "description": "Parent folder whose immediate subdirectories are all knowledge directories. All subdirectories are auto-discovered and named by their folder name. Use this when all your knowledge directories share a common parent. Combine with knowledge_dirs for any that don't.",
+      "examples": ["/Users/yourname", "/home/yourname/vaults", "C:\\Users\\yourname\\Vaults"]
     },
+
     "knowledge_dirs": {
       "type": "object",
-      "description": "Named knowledge directories — where your thinking lives. Notes, docs, todos, tasks, plans, research. Keys become uppercase variable names in Claude sessions (e.g. 'notes' → $NOTES). Values are absolute paths on this machine. Use alongside knowledge_root or instead of it.",
+      "description": "Named knowledge directories — where your thinking lives. Notes, docs, todos, tasks, plans, research. Each key becomes an uppercase variable in Claude sessions (e.g. 'notes' → $NOTES). Values are absolute paths on this machine. Use instead of, or alongside, knowledge_root.",
       "additionalProperties": {
         "type": "string",
         "description": "Absolute path to this knowledge directory on this machine."
       },
       "examples": [
         { "notes": "/Users/yourname/notes" },
-        { "work": "/Users/yourname/work-docs", "personal": "/Users/yourname/personal" }
+        { "work": "/Users/yourname/work-docs", "personal": "/Users/yourname/personal-docs" }
       ]
-    },
-    "project_root": {
-      "type": "string",
-      "description": "Where your code lives — git repositories, source files, compiled artefacts, and build outputs.",
-      "examples": ["/Users/yourname/Projects", "/home/yourname/Projects", "D:\\Projects"]
     }
   },
+
   "additionalProperties": false
 }
