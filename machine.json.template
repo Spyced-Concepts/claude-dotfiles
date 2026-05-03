@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy this to ~/.claude/machine.json and fill in your paths. Do not commit machine.json — it contains machine-specific paths.",
+  "name": "machine-name",
+  "os": "macos",
+  "home": "/path/to/home",
+  "knowledge_dirs": {
+    "_comment": "Add any number of knowledge directories. Keys become variable names in Claude sessions (uppercase). Values are absolute paths to folders containing markdown files.",
+    "notes": "/path/to/notes",
+    "projects_docs": "/path/to/project-documentation"
+  },
+  "projects": "/path/to/projects"
+}

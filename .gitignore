@@ -1,0 +1,11 @@
+# Machine-specific files — never commit these
+machine.json
+settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

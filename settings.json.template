@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy this to ~/.claude/settings.json and customise. Do not commit settings.json — it contains machine-specific paths.",
+  "permissions": {
+    "allow": [
+      "Bash(date)",
+      "Bash(date *)",
+      "Bash(cat ~/.claude/machine.json)",
+      "Bash(cat ~/.claude/greeting-date)",
+      "Bash(ls *)",
+      "Bash(find * -type f)",
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)"
+    ]
+  }
+}
