@@ -22,15 +22,20 @@ Thank you for your interest in contributing. This document covers how to report 
 
 ## Branch workflow
 
+Each feature or fix goes through **two separate PRs**:
+
 ```
-feature/description
-       ↓  (PR)
-functional-test      ← integration testing; must pass before release
-       ↓  (PR)
-release/vX.X.X       ← cut before each release; version bump here
-       ↓  (PR)
-main                 ← protected; production; tagged releases only
+                    ┌─→ functional-test   PR #1 — testing gate
+feature/description ┤
+                    └─→ release/vX.X.X   PR #2 — bundling (after PR #1 approved)
+
+release/vX.X.X ─→ main                  PR #3 — monthly release cut
 ```
+
+**Why two PRs?**
+`functional-test` is a validation environment, not a pipeline stage. Features are tested there independently. Once approved, the same feature branch is PR'd separately into the upcoming release branch. This lets you choose which approved features ship in the next release — not everything tested has to ship immediately. Releases are cut on a monthly schedule, not whenever the pipeline fills up.
+
+**VERSION.md** is updated on the release branch as features land, or as the final commit before the PR to main. Never on a feature branch, never directly on main.
 
 ### Branch naming
 
@@ -39,7 +44,7 @@ main                 ← protected; production; tagged releases only
 | Feature | `feature/short-description` | `feature/windows-symlink-support` |
 | Bug fix | `fix/short-description` | `fix/setup-path-spaces` |
 | Documentation | `docs/short-description` | `docs/linux-setup-guide` |
-| Release | `release/vX.X.X` | `release/v1.1.0` |
+| Release | `release/vX.X.X` | `release/v1.3.0` |
 
 If this project has a Jira project configured, prefix with the ticket ID:
 `CDF-12-feature/windows-symlink-support`
@@ -64,9 +69,11 @@ refactor: simplify machine.json validation in setup.sh
 2. Create your branch from `main`: `git checkout -b feature/short-description`
 3. Make your changes
 4. Test on at least one OS — note which in the PR description
-5. Update `VERSION.md` if your change is user-facing
-6. Open a PR against `functional-test`
-7. Describe what changed and why; include OS tested
+5. Open **PR #1** against `functional-test`
+6. Describe what changed and why; include OS tested
+7. Once PR #1 is approved, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch
+
+Do not update `VERSION.md` on your feature branch — that happens on the release branch.
 
 PRs directly against `main` will not be accepted.
 
@@ -77,7 +84,9 @@ PRs directly against `main` will not be accepted.
 Maintainers follow the same branch workflow as contributors — no exceptions:
 
 ```
-feature/description  →  functional-test  →  release/vX.X.X  →  main
+feature/description  ─→  functional-test  (PR #1)
+feature/description  ─→  release/vX.X.X   (PR #2, after #1 approved)
+release/vX.X.X       ─→  main             (PR #3, monthly)
 ```
 
 **Admin override** is a break-glass option for genuine emergencies only (e.g. a critical security fix that cannot wait for a full PR cycle). It is not a shortcut for convenience. Every direct push to a protected branch should be treated as a debt that requires a follow-up PR to document what changed and why.
