@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/shared.schema.json",
+  "variables": {
+    "EXAMPLE": "Description of what this variable represents — not a path"
+  },
+  "commands_enabled": [
+    "seclog",
+    "monthly-check",
+    "quarterly-review",
+    "update"
+  ],
+  "preferences": {
+    "greeting": true,
+    "greeting_once_per_day": true,
+    "seclog_on_session_start": false
+  }
+}

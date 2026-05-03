@@ -1,19 +1,11 @@
 {
-  "_note": "Copy this to ~/.claude/machine.json and fill in your paths. Never commit machine.json — it contains machine-specific paths.",
-
+  "$schema": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/machine.schema.json",
   "name": "machine-name",
   "os": "macos",
   "home": "/path/to/home",
-
-  "_projects_note": "Where your code lives — git repos, source files, compiled artefacts, build outputs.",
   "project_root": "/path/to/projects",
-
-  "_knowledge_note": "Where your thinking lives — notes, docs, todos, tasks, plans, research. Claude reads these for context. Use knowledge_root to auto-discover all subdirectories of a parent folder, knowledge_dirs to add specific paths individually, or both.",
-
   "knowledge_root": "/path/to/parent-knowledge-folder",
-
   "knowledge_dirs": {
-    "_note": "Optional — add specific dirs here in addition to, or instead of, knowledge_root.",
     "example": "/path/to/specific/knowledge-dir"
   }
 }

@@ -1,15 +1,11 @@
 {
-  "_comment": "A worked example. Copy machine.json.template to ~/.claude/machine.json and use this as a reference.",
-
+  "$schema": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/machine.schema.json",
   "name": "macbook-pro",
   "os": "macos",
   "home": "/Users/yourname",
-
+  "project_root": "/Users/yourname/Projects",
+  "knowledge_root": "/Users/yourname",
   "knowledge_dirs": {
-    "notes": "/Users/yourname/notes",
-    "work": "/Users/yourname/work",
-    "personal": "/Users/yourname/personal"
-  },
-
-  "projects": "/Users/yourname/Projects"
+    "archive": "/Users/yourname/Archive"
+  }
 }

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/machine.schema.json",
+  "title": "Machine Configuration",
+  "description": "Machine-specific configuration for claude-dotfiles. Maps canonical variable names to local paths. Never commit this file — it contains paths specific to this machine.",
+  "type": "object",
+  "required": ["name", "os", "home"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable machine name. Use something you'll recognise across machines.",
+      "examples": ["macbook-pro", "work-laptop", "home-desktop", "zorin-laptop"]
+    },
+    "os": {
+      "type": "string",
+      "enum": ["macos", "linux", "windows"],
+      "description": "Operating system. Used to generate OS-appropriate commands in Claude sessions."
+    },
+    "home": {
+      "type": "string",
+      "description": "Absolute path to your home directory on this machine.",
+      "examples": ["/Users/yourname", "/home/yourname", "C:\\Users\\yourname"]
+    },
+    "knowledge_root": {
+      "type": "string",
+      "description": "Parent folder containing all your knowledge directories. All immediate subdirectories will be auto-discovered and their names used as variable names. Use this instead of listing every directory individually in knowledge_dirs.",
+      "examples": ["/Users/yourname", "/home/yourname/vaults"]
+    },
+    "knowledge_dirs": {
+      "type": "object",
+      "description": "Named knowledge directories — where your thinking lives. Notes, docs, todos, tasks, plans, research. Keys become uppercase variable names in Claude sessions (e.g. 'notes' → $NOTES). Values are absolute paths on this machine. Use alongside knowledge_root or instead of it.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Absolute path to this knowledge directory on this machine."
+      },
+      "examples": [
+        { "notes": "/Users/yourname/notes" },
+        { "work": "/Users/yourname/work-docs", "personal": "/Users/yourname/personal" }
+      ]
+    },
+    "project_root": {
+      "type": "string",
+      "description": "Where your code lives — git repositories, source files, compiled artefacts, and build outputs.",
+      "examples": ["/Users/yourname/Projects", "/home/yourname/Projects", "D:\\Projects"]
+    }
+  },
+  "additionalProperties": false
+}

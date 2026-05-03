@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/shared.schema.json",
+  "variables": {
+    "NOTES": "Personal notes and reference material",
+    "WORK": "Work project documentation and planning",
+    "JOURNAL": "Daily journal and reflections"
+  },
+  "commands_enabled": [
+    "seclog",
+    "monthly-check",
+    "quarterly-review",
+    "update"
+  ],
+  "preferences": {
+    "greeting": true,
+    "greeting_once_per_day": true,
+    "seclog_on_session_start": false
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/shared.schema.json",
+  "title": "Shared Configuration",
+  "description": "Portable settings that travel with your private fork. Defines canonical variable names and their meanings; actual path values stay in machine.json on each machine. Commit this file to your private fork — not to the public claude-dotfiles repo.",
+  "type": "object",
+  "properties": {
+    "variables": {
+      "type": "object",
+      "description": "Canonical variable names and their human-readable descriptions. Keys are the variable names (used in commands and CLAUDE.md as $NAME). Values are descriptions of what they represent — not paths. Actual paths are in machine.json on each machine. This lets you write commands that reference $NOTES and know that every machine will map that to wherever notes live locally.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Human-readable description of what this variable represents."
+      },
+      "examples": [
+        {
+          "NOTES": "Personal notes and reference material",
+          "WORK": "Work project documentation and planning",
+          "CLAUDETTE": "Spyced Concepts business planning vault"
+        }
+      ]
+    },
+    "commands_enabled": {
+      "type": "array",
+      "description": "Which built-in commands from the public repo to activate. Names match filenames in commands/ without the .md extension.",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        ["seclog", "monthly-check", "quarterly-review", "update"]
+      ]
+    },
+    "preferences": {
+      "type": "object",
+      "description": "Behavioural preferences for Claude sessions.",
+      "properties": {
+        "greeting": {
+          "type": "boolean",
+          "description": "Show a daily session greeting.",
+          "default": true
+        },
+        "greeting_once_per_day": {
+          "type": "boolean",
+          "description": "Show the greeting only on the first session of each day.",
+          "default": true
+        },
+        "seclog_on_session_start": {
+          "type": "boolean",
+          "description": "Run /seclog automatically at the start of every session that does not begin with the full greeting.",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
