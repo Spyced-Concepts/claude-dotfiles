@@ -169,9 +169,9 @@ The `## Machine Configuration` section works without modification — it reads y
 
 ---
 
-## Integration with atlink
+## Integration with atlink *(coming soon)*
 
-[atlink](https://github.com/Spyced-Concepts/AtLink) — the developer workflow CLI — includes a `claude` subcommand for managing `claude-dotfiles` from the command line:
+**atlink** — a developer workflow CLI by [Spyced Concepts](https://spycedconcepts.co.uk) — will include a `claude` subcommand for managing `claude-dotfiles` from the command line without touching git directly:
 
 ```bash
 atlink claude init      # set up claude-dotfiles on this machine
@@ -179,7 +179,7 @@ atlink claude update    # pull latest config and redeploy
 atlink claude status    # show current config state
 ```
 
-*(atlink claude commands — coming in a future release)*
+atlink is currently in private development and will be released publicly soon. Watch this repo for updates.
 
 ---
 
