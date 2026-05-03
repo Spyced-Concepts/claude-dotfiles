@@ -6,6 +6,30 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
+## [1.4.0] — pending
+
+### Added
+
+- **Configurable command dispatch** — custom commands in `~/.claude/commands/` can be invoked with a user-defined prefix. Default: `--` (e.g. `--daily`, `--health-check`). Set any prefix you like — `!`, `>`, `cmd:`, `run:`, or empty string for no prefix. Disabled by default; opt in via `machine.json`.
+- **Five built-in generic commands** — `--daily` (daily briefing), `--todo` (open items), `--week-review` (weekly review), `--journal` (dated working notes), `--health-check` (verify setup integrity)
+- **`--commands`** — lists all available custom commands with descriptions and shows how to invoke them with your configured prefix
+- **`setup.sh` prefix prompt** — interactive setup now asks whether to enable command dispatch, lets you choose your prefix, and writes it to `machine.json` automatically
+- **Personal config guidance** — README documents how to ask Claude Code itself to set up a personal private config repo: *"Help me set up a personal claude-config repo"*
+- **No-prefix option** — set `command_prefix` to `""` to use command names directly without any prefix
+
+### Changed
+
+- Personal workflow commands (seclog, monthly-check, quarterly-review) removed from public repo — these belong in a private config repo, not a generic public tool
+- `machine.json` schema and template updated with `command_prefix_enabled` and `command_prefix` fields
+- `examples/machine.json.example` updated to show command prefix configuration
+- ROADMAP updated: v1.4.0 is an early release; next scheduled June 2026 (v1.5.0)
+
+### Note on `/` prefix
+
+Claude Code's CLI intercepts `/word` as built-in slash commands before messages reach Claude. Custom commands therefore cannot use `/` as a prefix — use `--`, `!`, `>`, or any other string. If Anthropic adds native user-level slash command support in a future Claude Code release, this constraint will be revisited.
+
+---
+
 ## [1.3.0] — 2026-05-03
 
 ### Changed

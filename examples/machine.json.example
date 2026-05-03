@@ -7,5 +7,7 @@
   "knowledge_root": "/Users/yourname",
   "knowledge_dirs": {
     "archive": "/Users/yourname/Archive"
-  }
+  },
+  "command_prefix_enabled": true,
+  "command_prefix": "--"
 }

@@ -8,9 +8,9 @@ This is the public roadmap for claude-dotfiles. Items here reflect our current i
 
 ## Release schedule
 
-**v1.2.0 is the last planned release until June 2026.** The next scheduled release is v1.3.0 — June 2026. An earlier release may be cut if a particularly compelling feature lands and is ready.
+**v1.4.0** — releasing now (ahead of the June cycle). The command dispatch system and built-in command library are compelling enough to ship early.
 
-Features approved in `functional-test` between now and June will accumulate in a `release/v1.3.0` branch when it is opened.
+Next scheduled after v1.4.0: **v1.5.0 — June 2026**.
 
 ---
 
