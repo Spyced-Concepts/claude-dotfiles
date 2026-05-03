@@ -6,13 +6,22 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
+## [1.2.0] — pending
+
+### Planned
+
+- Multi-AI-CLI adapter framework — `adapters/claude-code/`, `adapters/aider/`, etc.; `setup.sh` detects which CLI you use
+- `setup.sh` — option to re-run configuration for new settings without full reinstall
+
+---
+
 ## [1.1.0] — 2026-05-03
 
 ### Added
 
 - **Recursive knowledge discovery** — `knowledge_root` in `machine.json` auto-discovers all subdirectories of a parent folder as knowledge directories; no need to add each one individually
 - **Project root** — `project_root` in `machine.json` clearly separates code artefacts from knowledge directories
-- **Built-in slash commands** — `commands/` directory ships three ready-to-use commands: `/seclog`, `/monthly-check`, `/quarterly-review`
+- **Built-in slash commands** — `commands/` directory ships four ready-to-use commands: `/seclog`, `/monthly-check`, `/quarterly-review`, `/update`
 - **Interactive setup** — `setup.sh` now guides you through knowledge root discovery, directory selection, and command installation with clear prompts and terminology
 - **Commands symlink** — `setup.sh` symlinks `~/.claude/commands/` to the repo so commands stay in sync with `update.sh`
 
