@@ -6,6 +6,8 @@ Sync your Claude Code global configuration across multiple machines — without 
 
 > Built for [Claude Code](https://claude.ai/code) — Anthropic's official CLI for Claude. If you're from Anthropic and interested in this project, we'd love to hear from you: [spycedconcepts.co.uk](https://spycedconcepts.co.uk)
 
+**[View the roadmap →](ROADMAP.md)** · **[Changelog →](VERSION.md)** · **[Contributing →](CONTRIBUTORS.md)**
+
 ---
 
 ## What it does
