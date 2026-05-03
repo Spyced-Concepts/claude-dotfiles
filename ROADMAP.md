@@ -110,6 +110,8 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
 - **Command override (private > public)** — `~/.claude/commands/` is a real directory containing individual symlinks from both the public tool and any personal config repo. Personal commands with the same name as a public built-in override it automatically (`ln -sf` overwrites the symlink). This enables full customisation of any built-in command — replace `daily.md` with your own version and it just works. The public tool's `setup.sh` already implements this (individual file symlinks, not directory symlink). Personal config repos should do the same and run after the public setup.
 
+- **Clearer settings.json allowlist descriptions** — the permissions allowlist entries (e.g. `Bash(date *)`, `WebFetch(domain:wttr.in)`) are not immediately obvious to new users. Add inline documentation or a guided prompt that explains what each common entry does and when to add it. The `setup` keyword and `setup.sh` should offer common presets rather than requiring users to know the exact format.
+
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
 - **Community command gallery** — curated `/commands` contributions from the community
