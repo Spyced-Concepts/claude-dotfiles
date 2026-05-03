@@ -21,20 +21,25 @@ Pass: file exists and is valid JSON. Fail: missing or malformed.
 **Check 3 — machine.json paths exist**
 Read `~/.claude/machine.json` and check that every path value (`home`, `project_root`, `knowledge_root`, all `knowledge_dirs` values) points to a directory that actually exists on this machine.
 
-**Check 4 — commands symlink**
+**Check 4 — commands symlink or directory**
 ```bash
 ls -la ~/.claude/commands
 ```
-Pass: is a symlink pointing to a directory that exists. Fail: missing, broken, or not a symlink.
+Pass: exists and points to a directory containing `.md` files. Fail: missing or empty.
 
 **Check 5 — built-in commands present**
-Check that the commands directory contains at least one `.md` file.
-
-**Check 6 — claude-dotfiles repo location**
-Check whether the repo exists at `~/Projects/claude-dotfiles` or `~/claude-dotfiles`:
+Check that the commands directory contains at least one `.md` file:
 ```bash
-ls ~/Projects/claude-dotfiles 2>/dev/null || ls ~/claude-dotfiles 2>/dev/null || echo "not found"
+ls ~/.claude/commands/*.md 2>/dev/null | wc -l
 ```
+
+**Check 6 — repo location (via symlink)**
+Derive the repo location from the existing symlinks — do not assume a fixed path:
+```bash
+readlink ~/.claude/CLAUDE.md 2>/dev/null
+readlink ~/.claude/commands 2>/dev/null
+```
+Report what the symlinks point to. If either is missing or broken, flag it.
 
 **Summary**
 Report a clear pass/fail for each check. If any check fails, explain what is wrong and suggest the fix. End with an overall status: ✓ All checks passed, or ⚠️ N checks need attention.

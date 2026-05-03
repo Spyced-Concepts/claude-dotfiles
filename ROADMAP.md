@@ -106,6 +106,8 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
   If every machine maps `"notes"` → wherever notes live locally, then any command referencing `$NOTES` works everywhere without modification. `shared.json` lives in the user's *private* fork — never in the public tool repo. The public repo ships only the schema and template.
 
+- **Proper system install** — currently claude-dotfiles assumes it lives in `~/Projects/` or `~/`. A mature tool should install to a proper system location (`~/.local/share/claude-dotfiles/` on Linux, Homebrew Cellar on macOS, a proper npm global package, etc.) and derive all paths from its installed location — never from assumptions about the user's home directory structure. The repo stays open source on GitHub; only the install mechanism changes. Homebrew formula and npm package are the target delivery mechanisms. All internal path resolution should use symlinks (`readlink ~/.claude/CLAUDE.md`) rather than hardcoded paths.
+
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
 - **Community command gallery** — curated `/commands` contributions from the community
