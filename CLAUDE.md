@@ -104,7 +104,7 @@ Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels n
 
 Reserved words that trigger specific actions:
 
-- **setup** — Create or update `~/.claude/machine.json`. Prompt for each field one at a time (machine name, OS, home directory, projects directory, knowledge directories). Write the completed config to `~/.claude/machine.json`. Then check `~/.claude/settings.json` and flag any path mismatches.
+- **setup** — Create or update `~/.claude/machine.json` and `~/.claude/settings.json` interactively. Read the current values first. Show each field with its current value in brackets — the user presses Enter to keep it or types a new value to replace it. After updating machine.json, show the current settings.json allowlist and offer to add new entries. Never require deleting files to reconfigure — always update in place. Write changes immediately and confirm what changed.
 
 ---
 
