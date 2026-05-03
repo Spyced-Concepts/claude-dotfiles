@@ -53,11 +53,11 @@ fi
 # ── Commands ─────────────────────────────────────────────────────────────────
 
 echo ""
-echo "── Custom slash commands ──────────────────────────────────────────────"
+echo "── Custom commands ────────────────────────────────────────────────────"
 echo ""
-echo "  claude-dotfiles includes built-in slash commands (/seclog,"
-echo "  /monthly-check, /quarterly-review) that you can invoke directly"
-echo "  in any Claude Code session."
+echo "  claude-dotfiles includes built-in commands (daily, todo, week-review,"
+echo "  journal, health-check, update) that Claude runs when you type a"
+echo "  configured prefix followed by the command name."
 echo ""
 read -p "  Set up built-in commands? (y/n): " setup_commands
 
@@ -104,27 +104,9 @@ if [ "$setup_commands" = "y" ]; then
   if [ "$enable_prefix" = "y" ]; then
     read -p "  Prefix to use [--]: " chosen_prefix
     chosen_prefix="${chosen_prefix:---}"
-
-    # Update machine.json with prefix settings
-    if [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
-      python3 - "$MACHINE_JSON" "$chosen_prefix" << 'PYEOF'
-import json, sys
-path, prefix = sys.argv[1], sys.argv[2]
-with open(path) as f:
-    c = json.load(f)
-c["command_prefix_enabled"] = True
-c["command_prefix"] = prefix
-with open(path, "w") as f:
-    json.dump(c, f, indent=2)
-    f.write("\n")
-PYEOF
-      echo "  ✓ Command prefix set to: '${chosen_prefix}' — try ${chosen_prefix}commands"
-    else
-      echo "  ⚠️  Set manually in ~/.claude/machine.json:"
-      echo "     \"command_prefix_enabled\": true,"
-      echo "     \"command_prefix\": \"${chosen_prefix}\""
-    fi
+    echo "  ✓ Prefix '${chosen_prefix}' noted — will be saved to machine.json after config."
   else
+    chosen_prefix=""
     echo "  Enable later by setting command_prefix_enabled: true in machine.json"
   fi
 fi
@@ -259,6 +241,27 @@ JSONEOF
   cat "$MACHINE_JSON"
 fi
 
+# ── Apply command prefix to machine.json ─────────────────────────────────────
+
+if [ -n "$chosen_prefix" ] && [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
+  python3 - "$MACHINE_JSON" "$chosen_prefix" << 'PYEOF'
+import json, sys
+path, prefix = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    c = json.load(f)
+c["command_prefix_enabled"] = True
+c["command_prefix"] = prefix
+with open(path, "w") as f:
+    json.dump(c, f, indent=2)
+    f.write("\n")
+PYEOF
+  echo "✓ Command prefix '${chosen_prefix}' saved to machine.json"
+elif [ -n "$chosen_prefix" ]; then
+  echo "⚠️  Could not save prefix automatically. Add to ~/.claude/machine.json:"
+  echo "   \"command_prefix_enabled\": true,"
+  echo "   \"command_prefix\": \"${chosen_prefix}\""
+fi
+
 # ── settings.json ────────────────────────────────────────────────────────────
 
 echo ""
@@ -282,7 +285,9 @@ echo "  Next steps:"
 echo "  1. Review ~/.claude/machine.json — edit paths if needed"
 echo "  2. Review ~/.claude/settings.json — add any tool permissions"
 echo "  3. Open Claude Code in any directory"
-if [ "$setup_commands" = "y" ]; then
-echo "  4. Try a built-in command: /seclog"
+if [ "$setup_commands" = "y" ] && [ -n "$chosen_prefix" ]; then
+  echo "  4. Try a command: type ${chosen_prefix}commands to list all available commands"
+elif [ "$setup_commands" = "y" ]; then
+  echo "  4. Enable commands: set command_prefix_enabled: true in ~/.claude/machine.json"
 fi
 echo ""
