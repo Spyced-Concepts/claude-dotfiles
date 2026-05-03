@@ -71,6 +71,32 @@ yourname/my-claude-config         your private repo — shared.json, custom comm
 
 ## Planned
 
+### v2.0.0 — Native package with UI (major rewrite)
+
+**v2.0.0 is the big one.** The current bash script approach works but is fundamentally limited — it assumes git, requires a terminal, and has no real Windows story beyond Git Bash. v2.0.0 rewrites claude-dotfiles as a proper cross-platform package.
+
+**Language:** Node.js (primary) — Claude Code itself is Node.js, so a Node package integrates naturally and users who have Claude Code already have Node. Python as an alternative runtime where Node isn't available.
+
+**Distribution:**
+```bash
+npm install -g claude-dotfiles   # primary
+brew install claude-dotfiles     # macOS
+winget install claude-dotfiles   # Windows
+```
+
+**What changes:**
+
+- **No git required** — package installs to the correct system location automatically; `claude-dotfiles update` handles upgrades
+- **True cross-platform** — proper Windows installer (`.exe` or winget); no Git Bash required
+- **Local web UI** — `claude-dotfiles ui` launches a simple local web interface for managing `machine.json`, knowledge directories, commands, and settings without editing JSON directly. Accessible to non-technical users.
+- **Claude Code integration** — the package can communicate directly with Claude Code's APIs rather than relying on CLAUDE.md text instructions
+- **Personal config management** — `claude-dotfiles config init` guides users through setting up a private config repo or connecting to the hosted service
+- **Plugin system** — command packs installable from npm (`npm install claude-dotfiles-writing-pack` gives writers a curated set of commands)
+
+**Why this matters:** v2.0.0 is when claude-dotfiles becomes genuinely accessible to non-developers. The UI removes the last barrier. The package removes the git/bash requirement. The plugin system makes it extensible without requiring users to manage files.
+
+---
+
 ### v2.0.0 — atlink claude integration
 
 [atlink](https://spycedconcepts.co.uk) — a developer workflow CLI by Spyced Concepts (coming soon) — will include an `atlink claude` subcommand group for managing claude-dotfiles without touching git directly:
