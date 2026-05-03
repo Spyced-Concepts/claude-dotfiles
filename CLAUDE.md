@@ -53,13 +53,25 @@ Keep it concise — a morning glance, not a report.
 
 ---
 
+## Custom Commands
+
+When the user types `/commandname` (e.g. `/daily`, `/health-check`), look for a matching file at `~/.claude/commands/commandname.md` and execute the instructions it contains.
+
+Steps:
+1. Extract `commandname` from the `/commandname` input
+2. Check whether `~/.claude/commands/commandname.md` exists: `ls ~/.claude/commands/commandname.md 2>/dev/null`
+3. If found: read the file and execute its instructions as the response to the user's message
+4. If not found: tell the user the command was not found and suggest `/commands` to list available commands
+
+This dispatch applies to any `/word` typed at the start of a message that is not a built-in Claude Code slash command. Built-in commands (`/help`, `/clear`, etc.) take priority.
+
+---
+
 ## Keywords
 
 Reserved words that trigger specific actions:
 
 - **setup** — Create or update `~/.claude/machine.json`. Prompt for each field one at a time (machine name, OS, home directory, projects directory, knowledge directories). Write the completed config to `~/.claude/machine.json`. Then check `~/.claude/settings.json` and flag any path mismatches.
-
-- **commands** — Render the full commands table in tabular format: Command | Type | Description.
 
 ---
 
