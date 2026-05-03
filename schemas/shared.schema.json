@@ -2,85 +2,43 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/shared.schema.json",
   "title": "claude-dotfiles — Shared Configuration",
-  "description": "Portable settings that live in your private config repo. Defines canonical variable names and their meanings — actual paths stay in machine.json on each machine. Safe to commit; contains no paths or secrets.",
+  "description": "Portable settings that live in your private config repo. Defines canonical variable names and preferences. Safe to commit — contains no paths or secrets.",
   "type": "object",
-
-  "examples": [
-    {
-      "variables": {
-        "NOTES": "Personal notes and reference material",
-        "WORK": "Work project documentation and planning",
-        "JOURNAL": "Daily journal and reflections"
-      },
-      "commands_enabled": ["seclog", "monthly-check", "quarterly-review", "update"],
-      "preferences": {
-        "greeting": true,
-        "greeting_once_per_day": true,
-        "seclog_on_session_start": false
-      }
-    }
-  ],
+  "additionalProperties": false,
 
   "properties": {
     "variables": {
       "type": "object",
-      "description": "Canonical variable names and what they represent. Keys are variable names — they become $NAME in Claude sessions and must match keys in every machine's machine.json. Values are human-readable descriptions only, never paths. This file defines the vocabulary; machine.json defines the local translation.",
+      "description": "Canonical variable names and what they represent. Keys are variable names used as $NAME in Claude sessions and must match keys in every machine's machine.json. Values are human-readable descriptions — not paths.",
       "additionalProperties": {
-        "type": "string",
-        "description": "What this variable represents — not a path."
-      },
-      "examples": [
-        {
-          "NOTES": "Personal notes and reference material",
-          "WORK": "Work project documentation and planning"
-        },
-        {
-          "CLAUDETTE": "Spyced Concepts business planning vault",
-          "STAVE": "Stave music platform planning vault",
-          "PERSONAL": "Personal admin and scheduling"
-        }
-      ]
+        "type": "string"
+      }
     },
-
     "commands_enabled": {
       "type": "array",
-      "description": "Which built-in commands from the public claude-dotfiles repo to activate. Command names match filenames in commands/ without the .md extension. Your private repo can add its own commands alongside these.",
+      "description": "Which built-in commands from the public repo to activate. Names match filenames in commands/ without the .md extension.",
       "items": {
-        "type": "string",
-        "description": "Command name (filename without .md)."
-      },
-      "examples": [
-        ["seclog", "monthly-check", "quarterly-review", "update"],
-        ["seclog", "update"]
-      ]
+        "type": "string"
+      }
     },
-
     "preferences": {
       "type": "object",
-      "description": "Behavioural preferences applied across all Claude sessions on any machine using this shared config.",
+      "description": "Behavioural preferences applied across all Claude sessions.",
+      "additionalProperties": false,
       "properties": {
         "greeting": {
           "type": "boolean",
-          "description": "Show a daily session greeting summarising date, priorities, and open items.",
-          "default": true,
-          "examples": [true, false]
+          "description": "Show a daily session greeting."
         },
         "greeting_once_per_day": {
           "type": "boolean",
-          "description": "Show the greeting only on the first session of each calendar day. If false, greeting runs every session.",
-          "default": true,
-          "examples": [true, false]
+          "description": "Show the greeting only on the first session of each calendar day."
         },
         "seclog_on_session_start": {
           "type": "boolean",
-          "description": "Run /seclog automatically at the start of every session that does not begin with the full greeting.",
-          "default": false,
-          "examples": [true, false]
+          "description": "Run /seclog automatically at the start of every session that does not begin with the full greeting."
         }
-      },
-      "additionalProperties": false
+      }
     }
-  },
-
-  "additionalProperties": false
+  }
 }
