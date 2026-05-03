@@ -71,6 +71,32 @@ yourname/my-claude-config         your private repo — shared.json, custom comm
 
 ## Planned
 
+### v2.0.0 — Native package with UI (major rewrite)
+
+**v2.0.0 is the big one.** The current bash script approach works but is fundamentally limited — it assumes git, requires a terminal, and has no real Windows story beyond Git Bash. v2.0.0 rewrites claude-dotfiles as a proper cross-platform package.
+
+**Language:** Node.js (primary) — Claude Code itself is Node.js, so a Node package integrates naturally and users who have Claude Code already have Node. Python as an alternative runtime where Node isn't available.
+
+**Distribution:**
+```bash
+npm install -g claude-dotfiles   # primary
+brew install claude-dotfiles     # macOS
+winget install claude-dotfiles   # Windows
+```
+
+**What changes:**
+
+- **No git required** — package installs to the correct system location automatically; `claude-dotfiles update` handles upgrades
+- **True cross-platform** — proper Windows installer (`.exe` or winget); no Git Bash required
+- **Local web UI** — `claude-dotfiles ui` launches a simple local web interface for managing `machine.json`, knowledge directories, commands, and settings without editing JSON directly. Accessible to non-technical users.
+- **Claude Code integration** — the package can communicate directly with Claude Code's APIs rather than relying on CLAUDE.md text instructions
+- **Personal config management** — `claude-dotfiles config init` guides users through setting up a private config repo or connecting to the hosted service
+- **Plugin system** — command packs installable from npm (`npm install claude-dotfiles-writing-pack` gives writers a curated set of commands)
+
+**Why this matters:** v2.0.0 is when claude-dotfiles becomes genuinely accessible to non-developers. The UI removes the last barrier. The package removes the git/bash requirement. The plugin system makes it extensible without requiring users to manage files.
+
+---
+
 ### v2.0.0 — atlink claude integration
 
 [atlink](https://spycedconcepts.co.uk) — a developer workflow CLI by Spyced Concepts (coming soon) — will include an `atlink claude` subcommand group for managing claude-dotfiles without touching git directly:
@@ -109,6 +135,8 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 - **Proper system install** — currently claude-dotfiles assumes it lives in `~/Projects/` or `~/`. A mature tool should install to a proper system location (`~/.local/share/claude-dotfiles/` on Linux, Homebrew Cellar on macOS, a proper npm global package, etc.) and derive all paths from its installed location — never from assumptions about the user's home directory structure. The repo stays open source on GitHub; only the install mechanism changes. Homebrew formula and npm package are the target delivery mechanisms. All internal path resolution should use symlinks (`readlink ~/.claude/CLAUDE.md`) rather than hardcoded paths.
 
 - **Command override (private > public)** — `~/.claude/commands/` is a real directory containing individual symlinks from both the public tool and any personal config repo. Personal commands with the same name as a public built-in override it automatically (`ln -sf` overwrites the symlink). This enables full customisation of any built-in command — replace `daily.md` with your own version and it just works. The public tool's `setup.sh` already implements this (individual file symlinks, not directory symlink). Personal config repos should do the same and run after the public setup.
+
+- **Clearer settings.json allowlist descriptions** — the permissions allowlist entries (e.g. `Bash(date *)`, `WebFetch(domain:wttr.in)`) are not immediately obvious to new users. Add inline documentation or a guided prompt that explains what each common entry does and when to add it. The `setup` keyword and `setup.sh` should offer common presets rather than requiring users to know the exact format.
 
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
