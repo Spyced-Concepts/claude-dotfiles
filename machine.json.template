@@ -7,5 +7,7 @@
   "knowledge_root": "/path/to/parent-knowledge-folder",
   "knowledge_dirs": {
     "example": "/path/to/specific/knowledge-dir"
-  }
+  },
+  "command_prefix_enabled": false,
+  "command_prefix": "--"
 }

@@ -35,6 +35,14 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "command_prefix_enabled": {
+      "type": "boolean",
+      "description": "Enable custom command dispatch. When true, Claude watches for messages starting with command_prefix and dispatches them to ~/.claude/commands/. Disabled by default — opt in deliberately."
+    },
+    "command_prefix": {
+      "type": "string",
+      "description": "The prefix that triggers a custom command. Any string except / (which the Claude Code CLI intercepts). Examples: --, !, >, cmd:, run:. Set to empty string \"\" for no prefix — command names are used directly (e.g. 'daily'). Only used when command_prefix_enabled is true."
     }
   }
 }
