@@ -6,12 +6,13 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
-## [1.2.0] — pending
+## [1.2.0] — 2026-05-03
 
-### Planned
+### Changed
 
-- Multi-AI-CLI adapter framework — `adapters/claude-code/`, `adapters/aider/`, etc.; `setup.sh` detects which CLI you use
-- `setup.sh` — option to re-run configuration for new settings without full reinstall
+- **Schemas as pure metadata** — `schemas/machine.schema.json` and `schemas/shared.schema.json` now describe shape only (types, required fields, descriptions). All inline `examples` removed. Examples live in `examples/` folder.
+- **Branch workflow formalised** — `CONTRIBUTORS.md` updated to document that maintainers follow the same branch workflow as contributors. Admin override explicitly documented as break-glass for genuine emergencies only.
+- **Branch protection complete** — `release/*` pattern rule added; all protected branches (`main`, `functional-test`, `release/*`) now require PRs.
 
 ---
 
