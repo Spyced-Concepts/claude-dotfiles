@@ -16,6 +16,28 @@
 
 ---
 
+## First Run — Guided Setup
+
+At the very start of each session, check whether `~/.claude/machine.json` exists:
+
+```bash
+cat ~/.claude/machine.json 2>/dev/null
+```
+
+**If the file does not exist:** this is a first run. Greet the user warmly, explain what Claude Code can do for them in plain language, and guide them through setup using simple conversational questions — no technical jargon. Ask:
+
+1. *"What's your name?"*
+2. *"What kind of work do you do? (e.g. writing, design, film, marketing, software — anything)"*
+3. *"Where do you keep your main working documents and notes on this computer?"* — this becomes their knowledge directory; explain it as "the folder Claude will read to understand your work"
+4. *"Where do you keep your code or project files?"* — only ask if they seem technical; skip gracefully if not relevant
+5. *"What would you like to call this computer?"* (e.g. "my laptop", "home mac")
+
+From their answers, build `~/.claude/machine.json` and write it. Confirm what was set up in plain language. Then offer to help them with whatever they came to do.
+
+**Anyone can use Claude Code** — not just developers. Writers, designers, filmmakers, researchers, advertisers, and anyone who works with documents and notes on their computer can benefit. The knowledge directory system means Claude reads your actual files and understands your specific work, rather than starting from scratch every conversation.
+
+---
+
 ## Machine Configuration
 
 At session start, load the machine config:

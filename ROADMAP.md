@@ -134,6 +134,35 @@ This is the natural commercial tier alongside the free self-hosted tool. More de
 
 ---
 
+## Strategic direction — beyond developers
+
+Claude Code is positioned as a developer tool, but its capabilities extend far beyond software development. The ability to read local files, run commands, and maintain persistent context via `~/.claude/CLAUDE.md` makes it genuinely useful for any knowledge worker who works with documents on their computer.
+
+**claude-dotfiles exists to make this accessible.** The knowledge directory system means Claude reads your actual files — your research, your notes, your project documents — and understands your specific work rather than starting from scratch every conversation.
+
+**Target non-developer use cases:**
+
+| Who | What they bring to Claude | What Claude gives back |
+|---|---|---|
+| Writers | Research notes, character docs, plot outlines, drafts | A collaborator who has read everything and remembers it |
+| Filmmakers | Scripts, production notes, shot lists, research | A script editor and production assistant |
+| Designers | Briefs, brand guidelines, client notes, inspiration | A briefed creative partner |
+| Advertisers | Campaign notes, audience research, copy drafts | A copywriter who knows the brief |
+| Researchers | Papers, notes, source material, bibliography | A research assistant who has read the literature |
+| Small business owners | Processes, client notes, templates | An assistant who knows how the business works |
+
+**What needs to happen to reach this audience:**
+
+- ✅ **`curl` one-line install** — no git or npm knowledge required *(added v1.4.0)*
+- ✅ **Conversational first-run** — Claude asks friendly questions and builds the config from answers *(added v1.4.0)*
+- 🔄 **Plain language throughout** — documentation written for humans, not engineers
+- 🔄 **npm package / Homebrew** — `brew install claude-dotfiles` or `npm install -g claude-dotfiles`
+- 🔄 **Windows installer** — no Git Bash required
+- 🔄 **Non-developer starter commands** — built-in commands for writing, research, creative work
+- 🔄 **Hosted config service** — no git required for cross-machine sync
+
+---
+
 ## How to contribute to the roadmap
 
 - **Feature requests** → [open an issue](https://github.com/Spyced-Concepts/claude-dotfiles/issues/new?template=feature_request.md)
