@@ -108,6 +108,8 @@ This makes claude-dotfiles accessible to developers who aren't comfortable with 
 
 - **Proper system install** — currently claude-dotfiles assumes it lives in `~/Projects/` or `~/`. A mature tool should install to a proper system location (`~/.local/share/claude-dotfiles/` on Linux, Homebrew Cellar on macOS, a proper npm global package, etc.) and derive all paths from its installed location — never from assumptions about the user's home directory structure. The repo stays open source on GitHub; only the install mechanism changes. Homebrew formula and npm package are the target delivery mechanisms. All internal path resolution should use symlinks (`readlink ~/.claude/CLAUDE.md`) rather than hardcoded paths.
 
+- **Command override (private > public)** — `~/.claude/commands/` is a real directory containing individual symlinks from both the public tool and any personal config repo. Personal commands with the same name as a public built-in override it automatically (`ln -sf` overwrites the symlink). This enables full customisation of any built-in command — replace `daily.md` with your own version and it just works. The public tool's `setup.sh` already implements this (individual file symlinks, not directory symlink). Personal config repos should do the same and run after the public setup.
+
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
 - **Community command gallery** — curated `/commands` contributions from the community
