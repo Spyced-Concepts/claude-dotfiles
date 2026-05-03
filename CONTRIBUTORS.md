@@ -22,15 +22,20 @@ Thank you for your interest in contributing. This document covers how to report 
 
 ## Branch workflow
 
+Each feature or fix goes through **two separate PRs**:
+
 ```
-feature/description
-       ↓  (PR)
-functional-test      ← integration testing; must pass before release
-       ↓  (PR)
-release/vX.X.X       ← cut before each release; version bump here
-       ↓  (PR)
-main                 ← protected; production; tagged releases only
+                    ┌─→ functional-test   PR #1 — testing gate
+feature/description ┤
+                    └─→ release/vX.X.X   PR #2 — bundling (after PR #1 approved)
+
+release/vX.X.X ─→ main                  PR #3 — monthly release cut
 ```
+
+**Why two PRs?**
+`functional-test` is a validation environment, not a pipeline stage. Features are tested there independently. As each feature is approved in `functional-test`, the same feature branch is immediately PR'd into the upcoming release branch — features accumulate in the release branch as they pass, not in a batch at the end. By the time the release date arrives, the release branch is already complete and ready to publish.
+
+**VERSION.md** is updated on the release branch — either incrementally as features land, or as a final commit before the PR to main. Never on a feature branch, never directly on main.
 
 ### Branch naming
 
@@ -39,10 +44,10 @@ main                 ← protected; production; tagged releases only
 | Feature | `feature/short-description` | `feature/windows-symlink-support` |
 | Bug fix | `fix/short-description` | `fix/setup-path-spaces` |
 | Documentation | `docs/short-description` | `docs/linux-setup-guide` |
-| Release | `release/vX.X.X` | `release/v1.1.0` |
+| Release | `release/vX.X.X` | `release/v1.3.0` |
 
-If this project has a Jira project configured, prefix with the ticket ID:
-`CDF-12-feature/windows-symlink-support`
+If you're working on a tracked GitHub Issue, prefix with the issue number:
+`#12-feature/windows-symlink-support`
 
 ### Commit messages
 
@@ -64,9 +69,11 @@ refactor: simplify machine.json validation in setup.sh
 2. Create your branch from `main`: `git checkout -b feature/short-description`
 3. Make your changes
 4. Test on at least one OS — note which in the PR description
-5. Update `VERSION.md` if your change is user-facing
-6. Open a PR against `functional-test`
-7. Describe what changed and why; include OS tested
+5. Open **PR #1** against `functional-test`
+6. Describe what changed and why; include OS tested
+7. Once PR #1 is approved and merged, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch — this happens immediately on approval, not at end of cycle
+
+Do not update `VERSION.md` on your feature branch — that happens on the release branch.
 
 PRs directly against `main` will not be accepted.
 
@@ -77,21 +84,36 @@ PRs directly against `main` will not be accepted.
 Maintainers follow the same branch workflow as contributors — no exceptions:
 
 ```
-feature/description  →  functional-test  →  release/vX.X.X  →  main
+feature/description  ─→  functional-test  (PR #1)
+feature/description  ─→  release/vX.X.X   (PR #2, after #1 approved)
+release/vX.X.X       ─→  main             (PR #3, monthly)
 ```
 
 **Admin override** is a break-glass option for genuine emergencies only (e.g. a critical security fix that cannot wait for a full PR cycle). It is not a shortcut for convenience. Every direct push to a protected branch should be treated as a debt that requires a follow-up PR to document what changed and why.
 
 ---
 
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org):
+
+| Type | When | Example |
+|---|---|---|
+| **PATCH** (x.y.**z**) | Bug fixes, docs corrections, small tweaks | v1.2.1 |
+| **MINOR** (x.**y**.0) | New features — monthly release cycle | v1.3.0 |
+| **MAJOR** (**x**.0.0) | Large new features, significant changes | v2.0.0 |
+
 ## Release process
 
-Releases are managed by [Spyced Concepts Ltd.](https://spycedconcepts.co.uk):
+Releases are managed by [Spyced Concepts Ltd.](https://spycedconcepts.co.uk) on a monthly cycle:
 
-1. `functional-test` → `release/vX.X.X` (version bump in `VERSION.md`)
-2. Testing on macOS, Linux, and Windows
-3. `release/vX.X.X` → `main` (merge + tag)
+1. `release/vX.X.X` branch accumulates approved features from their feature branches throughout the cycle
+2. `VERSION.md` updated on the release branch with the final changelog
+3. `release/vX.X.X` → `main` (PR, merge, tag)
 4. GitHub release created with `VERSION.md` notes
+5. `functional-test` synced from `main` to give new features a clean foundation
+
+Releases are tracked via [GitHub Issues](https://github.com/Spyced-Concepts/claude-dotfiles/issues) and [GitHub Discussions](https://github.com/Spyced-Concepts/claude-dotfiles/discussions).
 
 ---
 
