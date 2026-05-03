@@ -6,6 +6,17 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
+## [1.3.0] — 2026-05-03
+
+### Changed
+
+- **Branch workflow documented correctly** — `CONTRIBUTORS.md` updated to reflect the dual-PR pattern: feature branches go to `functional-test` (testing gate) and then immediately to the upcoming release branch on approval. Features accumulate in the release branch as they pass — the release branch is always ready to publish.
+- **Release schedule** — `ROADMAP.md` documents that v1.3.0 is the last planned release until the June 2026 cycle. Next: v1.4.0 June 2026, unless a compelling feature arrives sooner.
+- **Versioning convention** — patch (x.y.z) for fixes and small tweaks; minor (x.y.0) for new features on the monthly cycle; major (x.0.0) for large new features or significant changes.
+- **Project tracking** — GitHub Issues and Discussions used for project management; Jira/Confluence references removed.
+
+---
+
 ## [1.2.0] — 2026-05-03
 
 ### Changed
