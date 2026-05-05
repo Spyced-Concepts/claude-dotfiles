@@ -30,7 +30,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Truncate large diffs to stay within token limits (~300 lines is ample for a focused PR)
           DIFF=$(gh pr diff ${{ github.event.pull_request.number }} 2>/dev/null | head -n 400)
           LINES=$(echo "$DIFF" | wc -l)
           echo "$DIFF" > /tmp/pr_diff.txt
@@ -41,109 +40,108 @@ jobs:
         id: review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_TITLE:          ${{ github.event.pull_request.title }}
+          PR_BODY:           ${{ github.event.pull_request.body }}
+          PR_NUMBER:         ${{ github.event.pull_request.number }}
         run: |
-          python3 << 'PYEOF'
-          import json, os, urllib.request, urllib.error, sys
+          python3 - << 'PYEOF'
+import json, os, urllib.request, urllib.error, sys
 
-          diff      = open("/tmp/pr_diff.txt").read()
-          pr_title  = os.environ.get("PR_TITLE", "")
-          pr_body   = os.environ.get("PR_BODY", "")
-          pr_number = os.environ.get("PR_NUMBER", "")
-          api_key   = os.environ.get("ANTHROPIC_API_KEY", "")
+diff      = open("/tmp/pr_diff.txt").read()
+pr_title  = os.environ.get("PR_TITLE", "")
+pr_body   = os.environ.get("PR_BODY", "")
+pr_number = os.environ.get("PR_NUMBER", "")
+api_key   = os.environ.get("ANTHROPIC_API_KEY", "")
 
-          if not api_key:
-              print("::error::ANTHROPIC_API_KEY secret not configured")
-              sys.exit(1)
+if not api_key:
+    print("::error::ANTHROPIC_API_KEY secret not configured")
+    sys.exit(1)
 
-          system = """You are reviewing a pull request for claude-dotfiles — a \
-personal configuration framework for Claude Code (Anthropic's AI CLI). \
-The project uses bash scripts targeting macOS, Linux, and Windows (Git Bash). \
-All documentation (--help, man pages, UAT.md) is enforced by check-docs.sh.
+system = (
+    "You are reviewing a pull request for claude-dotfiles — a personal "
+    "configuration framework for Claude Code (Anthropic's AI CLI). "
+    "The project uses bash scripts targeting macOS, Linux, and Windows (Git Bash). "
+    "All documentation (--help, man pages, UAT.md) is enforced by check-docs.sh. "
+    "Review concisely. Flag blockers clearly. Be direct."
+)
 
-Review concisely. Flag blockers clearly. Be direct."""
+body_excerpt = pr_body[:500] if pr_body else "(no description)"
+diff_block   = diff if diff.strip() else "(empty diff)"
 
-          user = f"""PR #{pr_number}: {pr_title}
+user = "\n".join([
+    f"PR #{pr_number}: {pr_title}",
+    "",
+    body_excerpt,
+    "",
+    "Diff:",
+    "```diff",
+    diff_block,
+    "```",
+    "",
+    "Review against these criteria:",
+    "1. **Correctness** — does the code do what it claims?",
+    "2. **Cross-platform** — will it work on macOS, Linux, and Windows Git Bash?",
+    "3. **Bash quality** — set -euo pipefail, quoting, portability",
+    "4. **Security** — unsafe variable expansion, path injection, hardcoded secrets",
+    "5. **Documentation** — --help updated, man page present, check-docs standards met",
+    "6. **UAT coverage** — does the PR reference relevant UAT-NNN test case IDs?",
+    "7. **PR scope** — single concern? or should it be split?",
+    "",
+    "End your review with exactly one of:",
+    "APPROVE",
+    "APPROVE WITH NOTES",
+    "REQUEST CHANGES",
+])
 
-{pr_body[:500] if pr_body else "(no description)"}
+payload = {
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 1024,
+    "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+    "messages": [{"role": "user", "content": user}],
+}
 
-Diff:
-```diff
-{diff}
-```
+req = urllib.request.Request(
+    "https://api.anthropic.com/v1/messages",
+    data=json.dumps(payload).encode(),
+    headers={
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "prompt-caching-2024-07-31",
+        "content-type": "application/json",
+    },
+    method="POST",
+)
 
-Review against these criteria:
-1. **Correctness** — does the code do what it claims?
-2. **Cross-platform** — will it work on macOS, Linux, and Windows Git Bash?
-3. **Bash quality** — set -euo pipefail, quoting, portability, no bashisms where POSIX suffices
-4. **Security** — unsafe variable expansion, path injection, hardcoded secrets
-5. **Documentation** — --help updated, man page present, check-docs standards met
-6. **UAT coverage** — does the PR reference relevant UAT-NNN test case IDs?
-7. **PR scope** — single concern? or should it be split?
+try:
+    with urllib.request.urlopen(req) as resp:
+        data = json.load(resp)
+        review = data["content"][0]["text"]
+except urllib.error.HTTPError as e:
+    body_err = e.read().decode()
+    print(f"::error::Claude API error {e.code}: {body_err}")
+    review = f"Claude review could not complete (API error {e.code}). Maintainer review required."
 
-End your review with exactly one of:
-✅ **APPROVE**
-⚠️ **APPROVE WITH NOTES**
-❌ **REQUEST CHANGES**"""
+delimiter = "CLAUDE_REVIEW_EOF"
+with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+    out.write(f"review<<{delimiter}\n{review}\n{delimiter}\n")
 
-          payload = {
-              "model": "claude-sonnet-4-6",
-              "max_tokens": 1024,
-              "system": [
-                  {
-                      "type": "text",
-                      "text": system,
-                      "cache_control": {"type": "ephemeral"}
-                  }
-              ],
-              "messages": [{"role": "user", "content": user}]
-          }
-
-          req = urllib.request.Request(
-              "https://api.anthropic.com/v1/messages",
-              data=json.dumps(payload).encode(),
-              headers={
-                  "x-api-key": api_key,
-                  "anthropic-version": "2023-06-01",
-                  "anthropic-beta": "prompt-caching-2024-07-31",
-                  "content-type": "application/json",
-              },
-              method="POST"
-          )
-
-          try:
-              with urllib.request.urlopen(req) as resp:
-                  data = json.load(resp)
-                  review = data["content"][0]["text"]
-          except urllib.error.HTTPError as e:
-              body = e.read().decode()
-              print(f"::error::Claude API error {e.code}: {body}")
-              review = f"⚠️ Claude review could not complete (API error {e.code}). Maintainer review required."
-
-          # Write to GITHUB_OUTPUT using multiline delimiter
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              delimiter = "CLAUDE_REVIEW_EOF"
-              f.write(f"review<<{delimiter}\n{review}\n{delimiter}\n")
-
-          print("Review written to GITHUB_OUTPUT")
-          PYEOF
-        env:
-          PR_TITLE:  ${{ github.event.pull_request.title }}
-          PR_BODY:   ${{ github.event.pull_request.body }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+print("Review written to GITHUB_OUTPUT")
+PYEOF
 
       - name: Post review comment
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
           DIFF_LINES: ${{ steps.diff.outputs.lines }}
+          REVIEW:     ${{ steps.review.outputs.review }}
         run: |
-          TRUNCATION_NOTE=""
+          NOTE=""
           if [ "${DIFF_LINES:-0}" -ge 400 ]; then
-            TRUNCATION_NOTE="> ⚠️ Diff was large — review based on first 400 lines only. Maintainer should verify remaining changes manually."$'\n\n'
+            NOTE="> ⚠️ Diff was large — review based on first 400 lines only."$'\n\n'
           fi
 
           gh pr comment ${{ github.event.pull_request.number }} --body "## 🤖 Claude Code Review
 
-${TRUNCATION_NOTE}${{ steps.review.outputs.review }}
+${NOTE}${REVIEW}
 
 ---
 *Automated review by Claude Sonnet · claude-dotfiles CI · [What is this?](https://github.com/Spyced-Concepts/claude-dotfiles/blob/main/CONTRIBUTORS.md)*
