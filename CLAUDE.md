@@ -105,7 +105,7 @@ status=$(git -C <personal_config_dir> status -b --porcelain 2>/dev/null)
 If the Identity section below still contains placeholder text (e.g. `[Your Name]`, `[Your Role]`), check this by running:
 
 ```bash
-grep -q '\[Your Name\]' ~/.claude/CLAUDE.md 2>/dev/null
+grep -qF '[Your Name]' ~/.claude/CLAUDE.md 2>/dev/null
 ```
 
 If the placeholder is found, tell the user their setup is not complete and offer to help:
