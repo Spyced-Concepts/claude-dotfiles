@@ -64,7 +64,7 @@ bash scripts/setup.sh
 - [ ] `~/.claude/commands/` contains all public built-in commands
 - [ ] Personal commands from the config repo are linked into `~/.claude/commands/`
 - [ ] Setup prints "Setup complete."
-- [ ] `bash scripts/status.sh` exits 0 (or 1 only for identity placeholder warning)
+- [ ] **Post-setup:** run `bash scripts/status.sh` — exits 0 (or 1 only for identity placeholder warning)
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
@@ -101,12 +101,13 @@ bash scripts/setup.sh
 - [ ] CLAUDE.md symlink updated to personal CLAUDE.md
 - [ ] Commands refreshed (new commands from either repo appear)
 - [ ] Setup prints "Setup complete."
+- [ ] **Post-setup:** run `bash scripts/status.sh` — exits 0
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | Covered by UAT-022 variant — legacy `projects` field migrated, personal config cloned to standard XDG path. See UAT-022 for migration detail. |
 
 ---
 
@@ -229,9 +230,9 @@ bash scripts/setup.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | Entries displayed correctly. Machine had no allowlist entries — `(none)` shown as expected. Format explanation and examples shown. Enter to skip worked. |
 
 ---
 
@@ -250,9 +251,9 @@ bash scripts/setup.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | Issue #27 fix confirmed. User entered `--` at (y/n) prompt (treated as no), but script detected existing prefix from machine.json and showed correct message. Note: invalid y/n input accepted silently — see issue #34. |
 
 ---
 
@@ -282,7 +283,7 @@ bash scripts/update.sh
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ⚠️ | maintainer | 2026-05-05 | Both git pulls ran, CLAUDE.md refreshed, 10 public + 3 personal commands re-linked, no interactive prompts, exit 0. Both repos already up to date — "new command appears" and "stale symlink cleanup" paths not exercised. Partial pass. |
 
 ---
 
@@ -307,7 +308,7 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
 | macOS | ⬜ | | | |
 | Linux | ⬜ | | | |
 
@@ -334,9 +335,9 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | All 4 reversible conditions tested: missing machine.json ✓, broken CLAUDE.md symlink ✓, identity placeholder ✓, personal_config_dir removed ✓. Each flagged with ✗/⚠ and remediation command. Exit 1 in all cases. "Repo behind remote" not simulated — code review confirms path is correct. |
 
 ---
 
@@ -386,7 +387,7 @@ bash scripts/status.sh
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (20KB, correct content). 13 command symlinks removed. machine.json and settings.json retained. Both repos intact. "Uninstall complete." printed. Exit 0. Reinstall via setup.sh confirmed working immediately after. |
 
 ---
 
@@ -410,7 +411,7 @@ bash scripts/status.sh
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
 | macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | Same run as UAT-013. CLAUDE.md is plain file, all symlinks removed, repos untouched. Reinstall via `bash scripts/setup.sh` worked immediately — personal_config_dir auto-detected, pulled, commands re-linked, status exit 0. |
 
 ---
 
@@ -560,6 +561,150 @@ curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/mai
 
 ---
 
+### UAT-021 — Setup: re-run where personal config already in machine.json
+
+**Feature:** `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- `~/.claude/machine.json` exists and contains `personal_config_dir` pointing to a valid local git repo
+- The repo has a remote with changes not yet pulled
+
+**When** the user runs:
+```bash
+bash scripts/setup.sh
+```
+
+**Steps**
+1. Press Enter at each machine.json prompt to keep existing values
+2. Press Enter to skip allowlist entry
+
+**Then**
+- [ ] Setup detects `personal_config_dir` automatically — no prompt about personal config repo
+- [ ] `git pull` runs on the personal config repo
+- [ ] CLAUDE.md symlink refreshed
+- [ ] Commands refreshed
+- [ ] Setup prints "Setup complete."
+
+**Windows note:** `readlink` and `ls -la` will not show symlink arrows — verify by comparing file content of `~/.claude/CLAUDE.md` against the personal CLAUDE.md.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-022 — Setup: `projects` → `project_root` field migration
+
+**Feature:** `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- `~/.claude/machine.json` exists with a legacy `"projects"` field (pre-v1.4 install) and **no** `"project_root"` field
+
+**When** the user runs `setup.sh` and enters the projects folder path at the "Projects folder" prompt (default shows `~/Projects` because `project_root` is missing — the correct path must be typed)
+
+**Then**
+- [ ] `"projects"` field is removed from `machine.json`
+- [ ] `"project_root"` field is written with the entered path
+- [ ] All other existing fields (`knowledge_dirs`, `command_prefix_*`, etc.) are preserved
+- [ ] `dotfiles_dir` is written (new field)
+- [ ] `bash scripts/status.sh` shows no warnings about machine.json
+
+**Notes:**
+- The prompt default will show `~/Projects` even if the old `projects` value was different — the tester must type the correct path rather than pressing Enter
+- This is a one-time migration; re-running setup afterwards will show the correct default
+
+**macOS / Linux prompt values for this test:**
+
+| Prompt | Value |
+|---|---|
+| Set up built-in commands? | `y` |
+| Enable command prefix now? | `n` (if already set in machine.json) |
+| Machine name | Enter (keep) |
+| OS | Enter (keep) |
+| Home directory | Enter (keep) |
+| Projects folder | Type the actual projects path (e.g. `/home/yourname/Projects`) |
+| Knowledge root | Enter (keep or skip) |
+| Add allowlist entry? | Enter (skip) |
+| Personal config repo | `y` + clone URL, or `s` to skip |
+
+**Windows (Git Bash) prompt values:** same as above; use Windows-style paths (e.g. `/c/Users/yourname/Projects`).
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | `projects` field removed, `project_root` written correctly. `dotfiles_dir` and `personal_config_dir` also populated in same run. |
+
+---
+
+### UAT-023 — Setup: personal config exists at non-standard path, not in machine.json
+
+**Feature:** `setup.sh`  
+**Priority:** P2 High
+
+**Given**
+- A personal config repo is already cloned locally at a path other than `~/.local/share/claude-config` (e.g. `~/Projects/claude-config`)
+- `machine.json` does **not** contain `personal_config_dir`
+
+**When** the user runs `setup.sh` and answers `y` to "Have you already set up a personal config repo?" + provides the clone URL
+
+**Then**
+- [ ] Setup clones a **new copy** to `~/.local/share/claude-config` (or `$XDG_DATA_HOME/claude-config`)
+- [ ] `personal_config_dir` is set to the **new** cloned path, not the original non-standard path
+- [ ] CLAUDE.md symlinks to the new copy
+- [ ] Commands linked from the new copy
+- [ ] Original repo at the non-standard path is **not** modified or deleted
+- [ ] Setup prints "Setup complete."
+
+**Expected behaviour note:** setup.sh always clones to the standard XDG location. Users with existing repos at non-standard paths end up with two copies. This is by design — the standard path is the managed location. The original can be removed manually once the new copy is verified.
+
+**Windows note:** Standard path on Windows (Git Bash) is `$APPDATA/claude-config` or `$HOME/.local/share/claude-config` depending on environment. Confirm which `_config_parent` resolves to on the test machine.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | New clone created at `~/.local/share/claude-config`. Original at `~/Projects/claude-config` untouched. `personal_config_dir` set to new path. |
+
+---
+
+### UAT-024 — Commands: both public built-ins and private commands available
+
+**Feature:** Command dispatch, `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- Setup is complete with personal config connected
+- Personal config repo contains at least one custom command in its `commands/` directory
+- `command_prefix_enabled: true` and a prefix (e.g. `--`) set in `machine.json`
+
+**When** the user opens Claude Code and types `--commands`
+
+**Then**
+- [ ] All public built-in commands are listed (daily, health-check, journal, status, todo, update, week-review, commands, docscheck, uninstall)
+- [ ] All personal commands are also listed (e.g. seclog, monthly-check, quarterly-review)
+- [ ] Each entry shows the correct invoke syntax with the configured prefix
+- [ ] No duplicate entries for commands with the same name (personal overrides built-in silently)
+
+**Verification:** Run `ls -la ~/.claude/commands/` and confirm:
+- Each public command symlinks to the `dotfiles_dir/commands/` path
+- Each personal command symlinks to the `personal_config_dir/commands/` path
+- No broken symlinks
+
+**Windows note:** `ls -la` will not show symlink arrows. Verify by checking file content: `cat ~/.claude/commands/seclog.md` should match the personal config version.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ✅ | maintainer | 2026-05-05 | 10 public + 3 private commands linked. All resolve correctly. No duplicates. |
+
+---
+
 ## Regression checklist
 
 Run this after any change to `scripts/` or `CLAUDE.md`. Tick each item before raising a PR.
@@ -585,29 +730,34 @@ Summary of test pass rates by platform and release.
 | Test ID | Description | Windows | macOS | Linux |
 |---|---|---|---|---|
 | UAT-001 | Setup: new machine | ⚠️ partial¹ | ⬜ | ⬜ |
-| UAT-002 | Setup: re-run / update mode | ✅ | ⬜ | ⬜ |
+| UAT-002 | Setup: re-run / update mode | ✅ | ⬜ | ✅ |
 | UAT-003 | Setup: skip personal config | ⬜ | ⬜ | ⬜ |
 | UAT-004 | Setup: create repo via gh | ⬜ | ⬜ | ⬜ |
 | UAT-005 | Setup: no gh, manual instructions | ⬜ | ⬜ | ⬜ |
 | UAT-006 | Setup: CLAUDE.md backup and symlink | ✅ | ⬜ | ⬜ |
 | UAT-007 | Setup: settings.json display | ✅ | ⬜ | ⬜ |
 | UAT-008 | Setup: completion message | ✅ | ⬜ | ⬜ |
-| UAT-009 | Update: pulls both repos | ⬜ | ⬜ | ⬜ |
-| UAT-010 | Status: all checks pass | ✅² | ⬜ | ⬜ |
-| UAT-011 | Status: detects issues | ✅ | ⬜ | ⬜ |
-| UAT-012 | Status: quiet mode | ✅ | ⬜ | ⬜ |
-| UAT-013 | Uninstall: symlinks + restore | ⬜ | ⬜ | ⬜ |
-| UAT-014 | Uninstall: detach mode | ⬜ | ⬜ | ⬜ |
+| UAT-009 | Update: pulls both repos | ⬜ | ⬜ | ⚠️ partial³ |
+| UAT-010 | Status: all checks pass | ✅² | ⬜ | ✅ |
+| UAT-011 | Status: detects issues | ✅ | ⬜ | ✅ |
+| UAT-012 | Status: quiet mode | ✅ | ⬜ | ✅ |
+| UAT-013 | Uninstall: symlinks + restore | ⬜ | ⬜ | ✅ |
+| UAT-014 | Uninstall: detach mode | ⬜ | ⬜ | ✅ |
 | UAT-015 | Uninstall: full removal | ⬜ | ⬜ | ⬜ |
-| UAT-016 | Docs check: all pass | ✅ | ⬜ | ⬜ |
-| UAT-017 | Help flags | ✅ | ⬜ | ⬜ |
-| UAT-018 | Man pages | N/A | ⬜ | ⬜ |
+| UAT-016 | Docs check: all pass | ✅ | ⬜ | ✅ |
+| UAT-017 | Help flags | ✅ | ⬜ | ✅ |
+| UAT-018 | Man pages | N/A | ⬜ | ✅ |
 | UAT-019 | One-line install | ⬜ | ⬜ | ⬜ |
 | UAT-020 | CI docs-check workflow | ✅ (GitHub Actions) | | |
+| UAT-021 | Setup: personal config auto-detected (pull) | ⬜ | ⬜ | ✅ |
+| UAT-022 | Setup: `projects` → `project_root` migration | ⬜ | ⬜ | ✅ |
+| UAT-023 | Setup: personal config at non-standard path | ⬜ | ⬜ | ✅ |
+| UAT-024 | Commands: public + private both available | ⬜ | ⬜ | ✅ |
 
 **Notes:**
 ¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
 ² Symlinks show as `(regular file)` in status output on Windows — known platform display quirk, functionally correct. Documented in README OS compatibility section.
+³ UAT-009 Linux: pull, symlink refresh, and command re-link all pass. "New command appears" and "stale symlink cleanup" paths not exercised — both repos were already up to date. Retest when a real update is available.
 
 ---
 
@@ -616,9 +766,9 @@ Summary of test pass rates by platform and release.
 When you complete a test, update the relevant row:
 
 ```
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passed on first run |
-| Windows (Git Bash) | ❌ | StuLast | 2026-05-05 | Fails — see issue #26 |
-| Windows (Git Bash) | ⚠️ | StuLast | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
+| Windows (Git Bash) | ✅ | tester | 2026-05-05 | Passed on first run |
+| Windows (Git Bash) | ❌ | tester | 2026-05-05 | Fails — see issue #26 |
+| Windows (Git Bash) | ⚠️ | tester | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
 ```
 
 Open a GitHub issue for any ❌ or ⚠️ result and link it in the Notes column.

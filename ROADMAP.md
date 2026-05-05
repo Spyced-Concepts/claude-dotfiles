@@ -89,6 +89,7 @@ winget install claude-dotfiles   # Windows
 - **No git required** — package installs to the correct system location automatically; `claude-dotfiles update` handles upgrades
 - **True cross-platform** — proper Windows installer (`.exe` or winget); no Git Bash required
 - **Local web UI** — `claude-dotfiles ui` launches a simple local web interface for managing `machine.json`, knowledge directories, commands, and settings without editing JSON directly. Accessible to non-technical users.
+- **Config CLI** — `claude-dotfiles config get/set/list/unset` for reading and writing `machine.json` fields from the command line without editing JSON directly. Scriptable, inspectable, and AI-friendly — the same pattern as `git config`. Includes AI-facing `commands/config.md` so Claude can read and write config fields safely through the CLI rather than inline Python.
 - **Claude Code integration** — the package can communicate directly with Claude Code's APIs rather than relying on CLAUDE.md text instructions
 - **Personal config management** — `claude-dotfiles config init` guides users through setting up a private config repo or connecting to the hosted service
 - **Plugin system** — command packs installable from npm (`npm install claude-dotfiles-writing-pack` gives writers a curated set of commands)
@@ -108,6 +109,25 @@ atlink claude status    # show current config state and available updates
 ```
 
 This makes claude-dotfiles accessible to developers who aren't comfortable with git.
+
+---
+
+## Planned
+
+### v1.6.0 — Migrate existing local config into personal repo
+
+When a user runs `setup.sh` and connects a personal config repo, but already has a plain `~/.claude/CLAUDE.md` with custom rules, setup currently backs the file up and moves on. The custom rules are orphaned — they don't sync anywhere.
+
+This feature makes that migration active:
+
+1. Setup detects a pre-existing plain CLAUDE.md with content not in the personal repo
+2. Shows a summary of the local-only rules
+3. Asks: *"Your existing CLAUDE.md has content not in your personal config repo. Import it? (y/n)"*
+4. If yes: appends the local-only sections to the personal CLAUDE.md, commits, and pushes
+
+**Related:** Some rules genuinely belong on one machine only (behaviour tied to local paths or tools). A `## Machine-local` section convention in CLAUDE.md — excluded from the import — would handle this cleanly.
+
+**Scope:** Changes to `setup.sh` (diff + import step), convention for machine-local sections, UAT cases.
 
 ---
 
