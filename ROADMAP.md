@@ -27,7 +27,7 @@ Next scheduled after v1.4.0: **v1.5.0 — June 2026**.
 
 - **`knowledge_root`** — auto-discover all subdirectories of a parent folder as knowledge directories; no need to add each one individually
 - **`project_root`** — clearly separates code artefacts from knowledge/docs
-- **Built-in slash commands** — `/seclog`, `/monthly-check`, `/quarterly-review`, `/update`; symlinked to `~/.claude/commands/` so they work in any Claude Code session
+- **Built-in slash commands** — `/update` and others; symlinked to `~/.claude/commands/` so they work in any Claude Code session; personal workflow commands belong in your private config repo
 - **Interactive `setup.sh`** — guided prompts, recursive discovery, command installation
 
 ---

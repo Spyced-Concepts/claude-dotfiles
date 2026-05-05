@@ -52,7 +52,7 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ### Changed
 
-- Personal workflow commands (seclog, monthly-check, quarterly-review) removed from public repo — these belong in a private config repo, not a generic public tool
+- Personal workflow commands removed from public repo — these belong in a private config repo, not a generic public tool
 - `machine.json` schema and template updated with `command_prefix_enabled` and `command_prefix` fields
 - `examples/machine.json.example` updated to show command prefix configuration
 - ROADMAP updated: v1.4.0 is an early release; next scheduled June 2026 (v1.5.0)

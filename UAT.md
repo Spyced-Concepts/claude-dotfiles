@@ -64,7 +64,7 @@ bash scripts/setup.sh
 - [ ] `~/.claude/commands/` contains all public built-in commands
 - [ ] Personal commands from the config repo are linked into `~/.claude/commands/`
 - [ ] Setup prints "Setup complete."
-- [ ] `bash scripts/status.sh` exits 0 (or 1 only for identity placeholder warning)
+- [ ] **Post-setup:** run `bash scripts/status.sh` — exits 0 (or 1 only for identity placeholder warning)
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
@@ -101,12 +101,13 @@ bash scripts/setup.sh
 - [ ] CLAUDE.md symlink updated to personal CLAUDE.md
 - [ ] Commands refreshed (new commands from either repo appear)
 - [ ] Setup prints "Setup complete."
+- [ ] **Post-setup:** run `bash scripts/status.sh` — exits 0
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
+| macOS | ✅ | Stu Last | 2026-05-05 | machine.json fields preserved (including custom fields). Commands converted from plain files to symlinks. CLAUDE.md re-pointed to personal config. 3 personal commands linked. "Setup complete." printed. |
+| Linux | ✅ | maintainer | 2026-05-05 | Covered by UAT-022 variant — legacy `projects` field migrated, personal config cloned to standard XDG path. See UAT-022 for migration detail. |
 
 ---
 
@@ -205,7 +206,7 @@ bash scripts/setup.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Tested as part of reinstall-after-uninstall. Existing plain CLAUDE.md backed up to `~/.claude/CLAUDE.md.backup` automatically (no prompt). Symlink created to personal config. Backup readable and complete. |
 | Linux | ⬜ | | | |
 
 ---
@@ -229,9 +230,9 @@ bash scripts/setup.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
+| macOS | ✅ | Stu Last | 2026-05-05 | 15 allowlist entries displayed correctly. Format and examples shown. Enter to skip worked without error. |
+| Linux | ✅ | maintainer | 2026-05-05 | Entries displayed correctly. Machine had no allowlist entries — `(none)` shown as expected. Format explanation and examples shown. Enter to skip worked. |
 
 ---
 
@@ -250,9 +251,9 @@ bash scripts/setup.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Issue #27 fix confirmed. Answered `n` to prefix prompt; script read `command_prefix_enabled: true` and `command_prefix: --` from machine.json and showed "Try a command: type --commands". |
+| Linux | ✅ | maintainer | 2026-05-05 | Issue #27 fix confirmed. User entered `--` at (y/n) prompt (treated as no), but script detected existing prefix from machine.json and showed correct message. Note: invalid y/n input accepted silently — see issue #34. |
 
 ---
 
@@ -281,8 +282,8 @@ bash scripts/update.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| macOS | ⚠️ | Stu Last | 2026-05-05 | Both git pulls ran, CLAUDE.md refreshed, 11 public + 3 personal commands re-linked, no interactive prompts, exit 0. Both repos already up to date — "new command appears" and "stale symlink cleanup" paths not exercised. Partial pass. |
+| Linux | ⚠️ | maintainer | 2026-05-05 | Both git pulls ran, CLAUDE.md refreshed, 10 public + 3 personal commands re-linked, no interactive prompts, exit 0. Both repos already up to date — "new command appears" and "stale symlink cleanup" paths not exercised. Partial pass. |
 
 ---
 
@@ -307,8 +308,8 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
-| macOS | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
+| macOS | ✅ | Stu Last | 2026-05-05 | All four ✓: machine.json, CLAUDE.md symlink, dotfiles up to date, personal config in sync. Exit 0. Note: upstream tracking must be set manually on functional-test branch (`git branch --set-upstream-to=origin/functional-test`). |
 | Linux | ⬜ | | | |
 
 ---
@@ -334,9 +335,9 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
+| macOS | ✅ | Stu Last | 2026-05-05 | All 4 reversible conditions tested: missing machine.json ✓, broken CLAUDE.md symlink ✓, identity placeholder ✓, personal_config_dir removed from machine.json ✓. Each flagged with ✗/⚠ and remediation command. Exit 1 in all cases. "Repo behind remote" not simulated — code review confirms path is correct. |
+| Linux | ✅ | maintainer | 2026-05-05 | All 4 reversible conditions tested: missing machine.json ✓, broken CLAUDE.md symlink ✓, identity placeholder ✓, personal_config_dir removed ✓. Each flagged with ✗/⚠ and remediation command. Exit 1 in all cases. "Repo behind remote" not simulated — code review confirms path is correct. |
 
 ---
 
@@ -355,7 +356,7 @@ bash scripts/status.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Both `--quiet` and `-q` flags work. No output produced. Exit 0 when all checks pass (verified post-setup); exit 1 when checks fail (verified with missing machine.json). |
 | Linux | ⬜ | | | |
 
 ---
@@ -385,8 +386,8 @@ bash scripts/status.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (correct content). 14 command symlinks removed, commands dir empty. machine.json and settings.json retained. Both repos intact. "Uninstall complete." Exit 0. Reinstall via `bash scripts/setup.sh` confirmed working immediately — personal_config_dir auto-detected, pulled, commands re-linked, status exit 0. |
+| Linux | ✅ | maintainer | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (20KB, correct content). 13 command symlinks removed. machine.json and settings.json retained. Both repos intact. "Uninstall complete." printed. Exit 0. Reinstall via setup.sh confirmed working immediately after. |
 
 ---
 
@@ -409,8 +410,8 @@ bash scripts/status.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
-| Linux | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Same run as UAT-013. CLAUDE.md is plain file, all symlinks removed, repos untouched. Reinstall via `bash scripts/setup.sh` worked immediately — personal_config_dir auto-detected, pulled, 14 commands re-linked, status exit 0. |
+| Linux | ✅ | maintainer | 2026-05-05 | Same run as UAT-013. CLAUDE.md is plain file, all symlinks removed, repos untouched. Reinstall via `bash scripts/setup.sh` worked immediately — personal_config_dir auto-detected, pulled, commands re-linked, status exit 0. |
 
 ---
 
@@ -452,7 +453,7 @@ bash scripts/check-docs.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | All checks pass, exit 0, output clear. |
 | Linux | ⬜ | | | |
 
 ---
@@ -479,7 +480,7 @@ bash scripts/check-docs.sh --help
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | All 5 scripts: `--help` and `-h` both print usage, exit 0. |
 | Linux | ⬜ | | | |
 
 ---
@@ -508,7 +509,7 @@ man ./man/man1/claude-dotfiles-check-docs.1
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | N/A | | | man not available |
-| macOS | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | All 6 man pages render without errors. All 7 required sections (NAME, SYNOPSIS, DESCRIPTION, OPTIONS, EXIT STATUS, EXAMPLES, SEE ALSO) confirmed present in all 5 script pages. |
 | Linux | ⬜ | | | |
 
 ---
@@ -560,6 +561,363 @@ curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/mai
 
 ---
 
+### UAT-021 — Setup: re-run where personal config already in machine.json
+
+**Feature:** `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- `~/.claude/machine.json` exists and contains `personal_config_dir` pointing to a valid local git repo
+- The repo has a remote with changes not yet pulled
+
+**When** the user runs:
+```bash
+bash scripts/setup.sh
+```
+
+**Steps**
+1. Press Enter at each machine.json prompt to keep existing values
+2. Press Enter to skip allowlist entry
+
+**Then**
+- [ ] Setup detects `personal_config_dir` automatically — no prompt about personal config repo
+- [ ] `git pull` runs on the personal config repo
+- [ ] CLAUDE.md symlink refreshed
+- [ ] Commands refreshed
+- [ ] Setup prints "Setup complete."
+
+**Windows note:** `readlink` and `ls -la` will not show symlink arrows — verify by comparing file content of `~/.claude/CLAUDE.md` against the personal CLAUDE.md.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Personal config auto-detected from machine.json on two separate re-runs. No URL prompt shown. `git pull` ran, up to date. CLAUDE.md and commands refreshed. "Setup complete." |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-022 — Setup: `projects` → `project_root` field migration
+
+**Feature:** `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- `~/.claude/machine.json` exists with a legacy `"projects"` field (pre-v1.4 install) and **no** `"project_root"` field
+
+**When** the user runs `setup.sh` and enters the projects folder path at the "Projects folder" prompt (default shows `~/Projects` because `project_root` is missing — the correct path must be typed)
+
+**Then**
+- [ ] `"projects"` field is removed from `machine.json`
+- [ ] `"project_root"` field is written with the entered path
+- [ ] All other existing fields (`knowledge_dirs`, `command_prefix_*`, etc.) are preserved
+- [ ] `dotfiles_dir` is written (new field)
+- [ ] `bash scripts/status.sh` shows no warnings about machine.json
+
+**Notes:**
+- The prompt default will show `~/Projects` even if the old `projects` value was different — the tester must type the correct path rather than pressing Enter
+- This is a one-time migration; re-running setup afterwards will show the correct default
+
+**macOS / Linux prompt values for this test:**
+
+| Prompt | Value |
+|---|---|
+| Set up built-in commands? | `y` |
+| Enable command prefix now? | `n` (if already set in machine.json) |
+| Machine name | Enter (keep) |
+| OS | Enter (keep) |
+| Home directory | Enter (keep) |
+| Projects folder | Type the actual projects path (e.g. `/home/yourname/Projects`) |
+| Knowledge root | Enter (keep or skip) |
+| Add allowlist entry? | Enter (skip) |
+| Personal config repo | `y` + clone URL, or `s` to skip |
+
+**Windows (Git Bash) prompt values:** same as above; use Windows-style paths (e.g. `/c/Users/yourname/Projects`).
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `projects` field removed, `project_root` written correctly. `dotfiles_dir` added. Custom fields and all other existing fields preserved. `status.sh` exits 0 after migration. Note: default shown at Projects folder prompt is `~/Projects` (from `$HOME/Projects`) — matched actual path so Enter was sufficient. |
+| Linux | ✅ | maintainer | 2026-05-05 | `projects` field removed, `project_root` written correctly. `dotfiles_dir` and `personal_config_dir` also populated in same run. |
+
+---
+
+### UAT-023 — Setup: personal config exists at non-standard path, not in machine.json
+
+**Feature:** `setup.sh`  
+**Priority:** P2 High
+
+**Given**
+- A personal config repo is already cloned locally at a path other than `~/.local/share/claude-config` (e.g. `~/Projects/claude-config`)
+- `machine.json` does **not** contain `personal_config_dir`
+
+**When** the user runs `setup.sh` and answers `y` to "Have you already set up a personal config repo?" + provides the clone URL
+
+**Then**
+- [ ] Setup clones a **new copy** to `~/.local/share/claude-config` (or `$XDG_DATA_HOME/claude-config`)
+- [ ] `personal_config_dir` is set to the **new** cloned path, not the original non-standard path
+- [ ] CLAUDE.md symlinks to the new copy
+- [ ] Commands linked from the new copy
+- [ ] Original repo at the non-standard path is **not** modified or deleted
+- [ ] Setup prints "Setup complete."
+
+**Expected behaviour note:** setup.sh always clones to the standard XDG location. Users with existing repos at non-standard paths end up with two copies. This is by design — the standard path is the managed location. The original can be removed manually once the new copy is verified.
+
+**Windows note:** Standard path on Windows (Git Bash) is `$APPDATA/claude-config` or `$HOME/.local/share/claude-config` depending on environment. Confirm which `_config_parent` resolves to on the test machine.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Original at non-standard path untouched. New clone created at `~/.local/share/claude-config`. `personal_config_dir` set to new path. CLAUDE.md symlinked to new copy. 3 personal commands linked from new copy. "Setup complete." |
+| Linux | ✅ | maintainer | 2026-05-05 | New clone created at `~/.local/share/claude-config`. Original at non-standard path untouched. `personal_config_dir` set to new path. |
+
+---
+
+### UAT-024 — Commands: both public built-ins and private commands available
+
+**Feature:** Command dispatch, `setup.sh`  
+**Priority:** P1 Critical
+
+**Given**
+- Setup is complete with personal config connected
+- Personal config repo contains at least one custom command in its `commands/` directory
+- `command_prefix_enabled: true` and a prefix (e.g. `--`) set in `machine.json`
+
+**When** the user opens Claude Code and types `--commands`
+
+**Then**
+- [ ] All public built-in commands are listed (daily, health-check, journal, status, todo, update, week-review, commands, docscheck, uninstall)
+- [ ] All personal commands are also listed
+- [ ] Each entry shows the correct invoke syntax with the configured prefix
+- [ ] No duplicate entries for commands with the same name (personal overrides built-in silently)
+
+**Verification:** Run `ls -la ~/.claude/commands/` and confirm:
+- Each public command symlinks to the `dotfiles_dir/commands/` path
+- Each personal command symlinks to the `personal_config_dir/commands/` path
+- No broken symlinks
+
+**Windows note:** `ls -la` will not show symlink arrows. Verify by checking file content against the personal config version.
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | 11 public commands symlinked to dotfiles_dir; 3 personal commands symlinked to personal_config_dir. All resolve correctly. No duplicates. No broken symlinks. |
+| Linux | ✅ | maintainer | 2026-05-05 | 10 public + 3 private commands linked. All resolve correctly. No duplicates. |
+
+---
+
+### UAT-025 — saverule: help / list mode
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**When** the user types `--saverule help` or `--saverule list`
+
+**Then**
+- [ ] Taxonomy table is shown (all four tiers with friendly names and scope)
+- [ ] No file is written
+- [ ] Local Global tier is marked as `(coming soon)`
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Taxonomy table shown with all 4 tiers. Local Global marked `(coming soon)`. No file written. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-026 — saverule: write to global (synced-rules) tier
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**Given**
+- `personal_config_dir` is set in `~/.claude/machine.json` and points to a valid synced-rules repo
+- The synced-rules `CLAUDE.md` exists
+
+**When** the user types `--saverule global "never use deprecated API endpoints"`
+
+**Then**
+- [ ] Rule is appended to an appropriate section of the synced-rules `CLAUDE.md`
+- [ ] User is shown exactly what will be written and where before the write happens
+- [ ] File is written only after confirmation
+- [ ] Confirmation shown after write
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Rule appended to existing `## Synced Global Rules` section. Target path and exact content shown before write. File written only after `y` confirmation. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-027 — saverule: write to folder tier
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**Given**
+- A knowledge folder with a `CLAUDE.md` exists
+
+**When** the user types `--saverule folder "always use British English spelling"`
+
+**Then**
+- [ ] User is asked which folder
+- [ ] Rule is appended to the folder's `CLAUDE.md` in an appropriate section
+- [ ] User is shown what will be written before the write happens
+- [ ] File is written only after confirmation
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | Claudette vault used. Rule appended to `## Global Guidelines` as bullet point — correct section match. Content shown before write. Written only after confirmation. This is a genuine keeper rule (British English). |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-028 — saverule: write to project tier
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**Given**
+- Current working directory is a git repo
+- No `AGENTS.md` or `.claude/CLAUDE.md` exist yet
+
+**When** the user types `--saverule project "always run check-docs.sh before committing"`
+
+**Then**
+- [ ] `AGENTS.md` is created in the repo root using the standard scaffold
+- [ ] `.claude/CLAUDE.md` is created referencing `AGENTS.md`
+- [ ] Rule is written into `AGENTS.md`
+- [ ] User is shown what will be written before the write happens
+- [ ] `[Project Name]` placeholder is resolved — not left as a literal string
+- [ ] Files are written only after confirmation
+
+**Additional scenario — ambiguous project name:**
+
+Run the same command in a directory where the git remote URL is absent or ambiguous and the directory name is also ambiguous (e.g. a temp directory).
+
+- [ ] Claude asks the user to confirm the project name rather than guessing
+- [ ] `[Project Name]` is never written literally to any file
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `AGENTS.md` and `.claude/CLAUDE.md` both created from scratch. Project name resolved from git remote (`claude-dotfiles`) — no `[Project Name]` placeholder. Both files shown before write. Written only after `y`. Ambiguous-name path not tested (remote URL was unambiguous). |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-029 — saverule: multi-tier write
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule global,project "use conventional commit format"`
+
+**Then**
+- [ ] Both target locations are shown before any write
+- [ ] User is asked to confirm each write separately (`y/n`)
+- [ ] Accepting both writes both files correctly
+- [ ] Declining the second write after accepting the first leaves the first write intact (no rollback of already-confirmed writes)
+- [ ] User is informed of partial write if only one tier was accepted
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `global,project` multi-tier write. Both locations shown before any write. Confirmed each separately. Global written first, project second. Both written correctly. No rollback of first write when second confirmed. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-030 — saverule: Local Global rule tier blocked with coming-soon message
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule local "any rule"`
+
+**Then**
+- [ ] Message shown explaining Local Global tier is not yet implemented
+- [ ] User is offered `global` (synced-rules) as a temporary alternative or told to defer
+- [ ] Nothing is written to any file
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `--saverule local "any rule"` — coming-soon message shown, `global` offered as alternative, nothing written. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-031 — saverule: safety prompt for sensitive content
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical  
+**Note:** This check is LLM-judgment-based, not pattern-matched. It cannot reliably detect all sensitive content. The test verifies that the prompt fires for obvious cases — it does not guarantee detection of all personal or security-sensitive content. Treat passes as "fires when expected" not "guaranteed to catch everything."
+
+**When** the user attempts to save a rule containing personal information or security-sensitive content to the `project` tier (e.g. `--saverule project "my API key is abc123"`)
+
+**Then**
+- [ ] The safety prompt fires before any write
+- [ ] User is told why this content should not go in a project file
+- [ ] User is redirected to `global` (synced-rules) tier instead
+- [ ] Nothing is written to `AGENTS.md` or `.claude/CLAUDE.md`
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `--saverule project "my API key is abc123"` — safety prompt fired, credential identified, redirected to `global` tier, nothing written to AGENTS.md or .claude/CLAUDE.md. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-032 — saverule: tier specified but no rule text provided
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule global` (tier given, no quoted rule text)
+
+**Then**
+- [ ] Claude asks "What rule would you like to save?" before proceeding
+- [ ] Flow continues normally once the user provides the rule text
+- [ ] Nothing is written until rule text is provided and confirmed
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | `--saverule global` with no rule text — asked "What rule would you like to save?" before any file was touched. Flow continues normally once text provided. Nothing written until confirmed. |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-033 — saverule: global tier where personal_config_dir path has no CLAUDE.md
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**Given**
+- `personal_config_dir` is set in `~/.claude/machine.json` and the directory exists
+- The directory contains no `CLAUDE.md`
+
+**When** the user types `--saverule global "any rule"`
+
+**Then**
+- [ ] Claude detects the missing `CLAUDE.md` and offers to create one
+- [ ] If accepted, a minimal `CLAUDE.md` scaffold is created with a `## Rules` section
+- [ ] Rule is appended under `## Rules`
+- [ ] User is shown the full content before any write
+- [ ] Nothing is written without confirmation
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ✅ | Stu Last | 2026-05-05 | CLAUDE.md temporarily removed from personal config dir. Missing file detected, offered to create scaffold with `## Rules` section. Full content shown before write. Nothing written (declined — test artefact). CLAUDE.md restored. |
+| Linux | ⬜ | | | |
+
+---
+
 ## Regression checklist
 
 Run this after any change to `scripts/` or `CLAUDE.md`. Tick each item before raising a PR.
@@ -585,29 +943,45 @@ Summary of test pass rates by platform and release.
 | Test ID | Description | Windows | macOS | Linux |
 |---|---|---|---|---|
 | UAT-001 | Setup: new machine | ⚠️ partial¹ | ⬜ | ⬜ |
-| UAT-002 | Setup: re-run / update mode | ✅ | ⬜ | ⬜ |
+| UAT-002 | Setup: re-run / update mode | ✅ | ✅ | ✅ |
 | UAT-003 | Setup: skip personal config | ⬜ | ⬜ | ⬜ |
 | UAT-004 | Setup: create repo via gh | ⬜ | ⬜ | ⬜ |
 | UAT-005 | Setup: no gh, manual instructions | ⬜ | ⬜ | ⬜ |
-| UAT-006 | Setup: CLAUDE.md backup and symlink | ✅ | ⬜ | ⬜ |
-| UAT-007 | Setup: settings.json display | ✅ | ⬜ | ⬜ |
-| UAT-008 | Setup: completion message | ✅ | ⬜ | ⬜ |
-| UAT-009 | Update: pulls both repos | ⬜ | ⬜ | ⬜ |
-| UAT-010 | Status: all checks pass | ✅² | ⬜ | ⬜ |
-| UAT-011 | Status: detects issues | ✅ | ⬜ | ⬜ |
-| UAT-012 | Status: quiet mode | ✅ | ⬜ | ⬜ |
-| UAT-013 | Uninstall: symlinks + restore | ⬜ | ⬜ | ⬜ |
-| UAT-014 | Uninstall: detach mode | ⬜ | ⬜ | ⬜ |
+| UAT-006 | Setup: CLAUDE.md backup and symlink | ✅ | ✅ | ⬜ |
+| UAT-007 | Setup: settings.json display | ✅ | ✅ | ✅ |
+| UAT-008 | Setup: completion message | ✅ | ✅ | ✅ |
+| UAT-009 | Update: pulls both repos | ⬜ | ⚠️ partial⁴ | ⚠️ partial³ |
+| UAT-010 | Status: all checks pass | ✅² | ✅⁵ | ✅ |
+| UAT-011 | Status: detects issues | ✅ | ✅ | ✅ |
+| UAT-012 | Status: quiet mode | ✅ | ✅ | ✅ |
+| UAT-013 | Uninstall: symlinks + restore | ⬜ | ✅ | ✅ |
+| UAT-014 | Uninstall: detach mode | ⬜ | ✅ | ✅ |
 | UAT-015 | Uninstall: full removal | ⬜ | ⬜ | ⬜ |
-| UAT-016 | Docs check: all pass | ✅ | ⬜ | ⬜ |
-| UAT-017 | Help flags | ✅ | ⬜ | ⬜ |
-| UAT-018 | Man pages | N/A | ⬜ | ⬜ |
+| UAT-016 | Docs check: all pass | ✅ | ✅ | ⬜ |
+| UAT-017 | Help flags | ✅ | ✅ | ✅ |
+| UAT-018 | Man pages | N/A | ✅ | ✅ |
 | UAT-019 | One-line install | ⬜ | ⬜ | ⬜ |
 | UAT-020 | CI docs-check workflow | ✅ (GitHub Actions) | | |
+| UAT-021 | Setup: personal config auto-detected (pull) | ⬜ | ✅ | ✅ |
+| UAT-022 | Setup: `projects` → `project_root` migration | ⬜ | ✅ | ✅ |
+| UAT-023 | Setup: personal config at non-standard path | ⬜ | ✅ | ✅ |
+| UAT-024 | Commands: public + private both available | ⬜ | ✅ | ✅ |
+| UAT-025 | saverule: help / list mode | ⬜ | ✅ | ⬜ |
+| UAT-026 | saverule: write to global tier | ⬜ | ✅ | ⬜ |
+| UAT-027 | saverule: write to folder tier | ⬜ | ✅ | ⬜ |
+| UAT-028 | saverule: write to project tier | ⬜ | ✅ | ⬜ |
+| UAT-029 | saverule: multi-tier write | ⬜ | ✅ | ⬜ |
+| UAT-030 | saverule: Local Global rule tier coming-soon message | ⬜ | ✅ | ⬜ |
+| UAT-031 | saverule: safety prompt for sensitive content | ⬜ | ✅ | ⬜ |
+| UAT-032 | saverule: tier given, no rule text | ⬜ | ✅ | ⬜ |
+| UAT-033 | saverule: global tier, no CLAUDE.md in synced-rules dir | ⬜ | ✅ | ⬜ |
 
 **Notes:**
 ¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
 ² Symlinks show as `(regular file)` in status output on Windows — known platform display quirk, functionally correct. Documented in README OS compatibility section.
+³ UAT-009 Linux: pull, symlink refresh, and command re-link all pass. "New command appears" and "stale symlink cleanup" paths not exercised — both repos were already up to date. Retest when a real update is available.
+⁴ UAT-009 macOS: same as Linux — both repos already up to date. "New command appears" and "stale symlink cleanup" paths not exercised.
+⁵ UAT-010 macOS: upstream tracking on functional-test branch must be set manually before remote check passes (`git branch --set-upstream-to=origin/functional-test`). Not a bug — expected on a non-default branch.
 
 ---
 
@@ -616,9 +990,9 @@ Summary of test pass rates by platform and release.
 When you complete a test, update the relevant row:
 
 ```
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passed on first run |
-| Windows (Git Bash) | ❌ | StuLast | 2026-05-05 | Fails — see issue #26 |
-| Windows (Git Bash) | ⚠️ | StuLast | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
+| Windows (Git Bash) | ✅ | tester | 2026-05-05 | Passed on first run |
+| Windows (Git Bash) | ❌ | tester | 2026-05-05 | Fails — see issue #26 |
+| Windows (Git Bash) | ⚠️ | tester | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
 ```
 
 Open a GitHub issue for any ❌ or ⚠️ result and link it in the Notes column.
