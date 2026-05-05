@@ -62,6 +62,10 @@ if command -v gh &>/dev/null; then
   echo "✓ GitHub CLI (gh) found — automated repo setup available"
 fi
 
+# Initialise variables that may remain unset if the user skips sections
+chosen_prefix=""
+setup_commands="n"
+
 # Create ~/.claude if needed
 if [ ! -d "$CLAUDE_DIR" ]; then
   echo "Creating ~/.claude ..."
@@ -604,10 +608,32 @@ fi
 # Wire up personal config if we have a dir
 if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR" ]; then
 
-  # Prefer private CLAUDE.md over the public template
+  # Prefer private CLAUDE.md over the public template — but protect any
+  # existing plain file that may contain machine-specific settings
   if [ -f "$PERSONAL_CONFIG_DIR/CLAUDE.md" ]; then
-    ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
-    echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md"
+    if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ ! -L "$CLAUDE_DIR/CLAUDE.md" ]; then
+      echo ""
+      echo "  ⚠️  ~/.claude/CLAUDE.md is a plain file with existing content."
+      echo "     Your personal config repo also has a CLAUDE.md."
+      echo "     Replacing it will switch to the repo version."
+      echo "     A backup will be saved to ~/.claude/CLAUDE.md.backup"
+      echo ""
+      read -p "  Replace with personal config CLAUDE.md? (y/n): " replace_claude_md
+      if [ "$replace_claude_md" = "y" ]; then
+        cp "$CLAUDE_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md.backup"
+        echo "  ✓ Backed up to ~/.claude/CLAUDE.md.backup"
+        ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+        echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md"
+      else
+        echo "  Keeping existing ~/.claude/CLAUDE.md"
+        echo "  Review both files and merge any differences manually:"
+        echo "    Current:  ~/.claude/CLAUDE.md"
+        echo "    Repo:     $PERSONAL_CONFIG_DIR/CLAUDE.md"
+      fi
+    else
+      ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+      echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md"
+    fi
   fi
 
   # Symlink personal commands — these override public built-ins of the same name
