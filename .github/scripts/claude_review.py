@@ -10,7 +10,12 @@ import urllib.error
 
 runner_temp = os.environ.get("RUNNER_TEMP", "/tmp")
 diff_path   = os.path.join(runner_temp, "pr_diff.txt")
-diff        = open(diff_path).read()
+
+if not os.path.exists(diff_path):
+    print(f"::error::Diff file not found at {diff_path}")
+    sys.exit(1)
+
+diff = open(diff_path).read()
 pr_title  = os.environ.get("PR_TITLE", "")
 pr_body   = os.environ.get("PR_BODY", "")
 pr_number = os.environ.get("PR_NUMBER", "")
@@ -58,8 +63,13 @@ user = (
     "REQUEST CHANGES"
 )
 
+# Model ID: claude-sonnet-4-6 is the correct identifier for Claude Sonnet 4.6.
+# If the API rejects this, check console.anthropic.com for the current model list
+# and update the MODEL constant below.
+MODEL = "claude-sonnet-4-6"
+
 payload = {
-    "model": "claude-sonnet-4-6",
+    "model": MODEL,
     "max_tokens": 1024,
     "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
     "messages": [{"role": "user", "content": user}],

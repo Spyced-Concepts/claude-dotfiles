@@ -22,6 +22,4 @@ jobs:
       - name: Run documentation check
         run: bash scripts/check-docs.sh
 
-      - name: Show failure detail
-        if: failure()
-        run: bash scripts/check-docs.sh || true
+      # On failure, the first step's output is already in the job log.
