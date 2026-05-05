@@ -157,6 +157,23 @@ Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels n
 
 ---
 
+## Rule Scope Taxonomy
+
+When you add a rule, instruction, or convention, it should live in exactly one place — the one that matches its scope. Use this taxonomy to decide.
+
+| Tier | Scope | Where it lives |
+|---|---|---|
+| **Folder rule** | One vault or knowledge folder only | `CLAUDE.md` inside that folder |
+| **Local Global rule** | All sessions on this machine, not synced | Machine-local config (not committed to any repo) |
+| **Synced Global rule** | All sessions on all machines | Personal config repo `CLAUDE.md` |
+| **Project rule** | One specific code project | `AGENTS.md` + `.claude/CLAUDE.md` in that repo |
+
+**When in doubt, ask.** Never place a rule by assumption — the wrong tier means the rule is either missing on some machines or visible where it shouldn't be.
+
+Type `--saverule` for interactive help placing a rule in the right location.
+
+---
+
 ## Keywords
 
 Reserved words that trigger specific actions:
