@@ -1,0 +1,65 @@
+.\" Man page for claude-dotfiles uninstall.sh
+.\" To view: man ./man/man1/claude-dotfiles-uninstall.1
+.TH CLAUDE\-DOTFILES\-UNINSTALL 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles\-uninstall \- remove claude-dotfiles from this machine and return to a clean state
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/uninstall.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Removes claude-dotfiles symlinks from \fI~/.claude/\fR and returns Claude Code
+to a standalone configuration with no dependency on any git repo.
+.PP
+Offers to:
+.IP \(bu 2
+Restore a plain local \fI~/.claude/CLAUDE.md\fR so Claude Code continues to work
+.IP \(bu 2
+Remove \fImachine.json\fR and \fIsettings.json\fR
+.IP \(bu 2
+Delete the dotfiles repo and personal config repo (with strong confirmation)
+.PP
+Nothing is deleted without explicit confirmation at each step.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.TP
+.BR \-y ", " \-\-yes
+Skip the initial "Continue?" prompt. Individual deletion steps still require confirmation.
+.SH STEPS
+.IP "1." 4
+Removes the \fI~/.claude/CLAUDE.md\fR symlink (if it is a symlink). Offers to
+restore a plain local copy from your personal config or the public template.
+.IP "2." 4
+Removes all command symlinks from \fI~/.claude/commands/\fR. Regular
+(non-symlinked) files are left in place.
+.IP "3." 4
+Asks whether to remove \fI~/.claude/machine.json\fR and
+\fI~/.claude/settings.json\fR. Both are kept by default.
+.IP "4." 4
+Asks whether to delete the personal config repo and the claude-dotfiles repo.
+Requires typing \fBYES\fR to confirm each. Both are kept by default.
+.SH EXIT STATUS
+.TP
+.B 0
+Uninstall completed (whether or not individual items were removed).
+.TP
+.B 1
+A required operation failed.
+.SH EXAMPLES
+.TP
+Interactive uninstall:
+.B bash ~/.local/share/claude-dotfiles/scripts/uninstall.sh
+.TP
+Skip initial prompt (still asks per-item):
+.B bash ~/.local/share/claude-dotfiles/scripts/uninstall.sh --yes
+.TP
+Reinstall after uninstalling:
+.B curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh | bash
+.SH SEE ALSO
+.BR claude-dotfiles (1),
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-status (1)
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>

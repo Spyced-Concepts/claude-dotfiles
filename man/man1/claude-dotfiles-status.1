@@ -1,0 +1,73 @@
+.\" Man page for claude-dotfiles status.sh
+.\" To view: man ./man/man1/claude-dotfiles-status.1
+.TH CLAUDE\-DOTFILES\-STATUS 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles\-status \- check the health and sync state of your claude-dotfiles installation
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/status.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Checks the health of your claude-dotfiles installation across four areas:
+machine configuration, CLAUDE.md symlink integrity, claude-dotfiles version,
+and personal config repo sync state. Designed to be run at any time —
+especially before starting a work session.
+.PP
+Setup is not considered complete until all four checks pass. In particular,
+the personal config repo must be connected, synced, and contain a personalised
+CLAUDE.md (identity section filled in).
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.TP
+.BR \-q ", " \-\-quiet
+Suppress all output. Use the exit code only (0 = ok, 1 = issues found).
+Suitable for scripting and CI.
+.SH CHECKS
+.TP
+.B Machine config
+Verifies \fI~/.claude/machine.json\fR exists and can be parsed.
+.TP
+.B CLAUDE.md
+Verifies \fI~/.claude/CLAUDE.md\fR is present, the symlink target exists, and
+the identity section (name, role, location) has been filled in.
+.TP
+.B claude-dotfiles
+Fetches the remote and compares the local HEAD with the upstream tracking
+branch. Warns if updates are available.
+.TP
+.B Personal config repo
+Verifies the repo recorded in \fBpersonal_config_dir\fR (machine.json) is
+present and in sync with its remote. Required — setup is incomplete without it.
+.SH EXIT STATUS
+.TP
+.B 0
+All checks passed.
+.TP
+.B 1
+One or more checks flagged a warning or error.
+.SH EXAMPLES
+.TP
+Run a full status check:
+.B bash ~/.local/share/claude-dotfiles/scripts/status.sh
+.TP
+Use in a script or CI step:
+.B bash ~/.local/share/claude-dotfiles/scripts/status.sh --quiet || echo "Config needs attention"
+.SH FILES
+.TP
+.I ~/.claude/machine.json
+Read for: name, os, dotfiles_dir, personal_config_dir.
+.TP
+.I ~/.claude/CLAUDE.md
+Checked for existence, symlink integrity, and placeholder identity values.
+.SH ENVIRONMENT
+.TP
+.B HOME
+Used to locate \fI~/.claude/\fR.
+.SH SEE ALSO
+.BR claude-dotfiles (1),
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-update (1)
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>

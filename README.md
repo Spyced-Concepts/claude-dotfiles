@@ -62,22 +62,25 @@ A hosted config service (no git required) is on the [roadmap](ROADMAP.md).
 
 ## Quick start
 
+### One-line install
+
 ```bash
-# 1. Fork or clone this repo
-git clone git@github.com:Spyced-Concepts/claude-dotfiles.git ~/Projects/claude-dotfiles
+curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh | bash
+```
+
+Downloads claude-dotfiles and runs the guided setup. Requires Claude Code and git. No other dependencies.
+
+### Manual install
+
+```bash
+# 1. Clone this repo
+git clone https://github.com/Spyced-Concepts/claude-dotfiles.git ~/Projects/claude-dotfiles
 
 # 2. Run setup
 bash ~/Projects/claude-dotfiles/scripts/setup.sh
-
-# 3. Edit your machine config
-nano ~/.claude/machine.json
-
-# 4. Customise your CLAUDE.md
-nano ~/Projects/claude-dotfiles/CLAUDE.md
-
-# 5. Open Claude Code and type: setup
-# Claude will walk you through the config interactively.
 ```
+
+Setup guides you through everything interactively — including connecting your personal private config repo, which is required to complete the setup.
 
 ---
 
@@ -106,17 +109,82 @@ Then fill in your machine-specific paths in `~/.claude/machine.json`.
 
 ---
 
+## Checking status
+
+```bash
+bash ~/Projects/claude-dotfiles/scripts/status.sh
+```
+
+Checks four things: machine.json, CLAUDE.md symlink, claude-dotfiles version, and personal config repo sync. Setup is not complete until all four pass.
+
+```bash
+# Quiet mode — exit code only (0 = ok, 1 = issues)
+bash ~/Projects/claude-dotfiles/scripts/status.sh --quiet
+```
+
+---
+
 ## Updating your config
 
 ```bash
-# Pull latest and redeploy symlinks
 bash ~/Projects/claude-dotfiles/scripts/update.sh
 ```
 
-Or add an alias to your shell:
+Or use the alias added by the one-line installer:
 
 ```bash
-alias claude-update='bash ~/Projects/claude-dotfiles/scripts/update.sh'
+claude-update
+```
+
+---
+
+## Uninstalling
+
+```bash
+bash ~/Projects/claude-dotfiles/scripts/uninstall.sh
+```
+
+Removes all symlinks from `~/.claude/` and offers to restore a plain local `CLAUDE.md`. You are asked before anything is deleted. The repos are not deleted unless you explicitly confirm each one.
+
+**Detach mode** — if you want a one-time snapshot of your config (useful for secure or air-gapped environments):
+
+```bash
+bash ~/Projects/claude-dotfiles/scripts/uninstall.sh
+# → Yes to restore plain CLAUDE.md
+# → No to removing machine.json and settings.json
+# → No to deleting repos
+```
+
+This gives you a standalone `~/.claude/CLAUDE.md` that is no longer linked to any repo. Your repos are still there if you want to reinstall later.
+
+**Reinstall at any time:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh | bash
+```
+
+---
+
+## CLI reference
+
+| Script | Description |
+|---|---|
+| `scripts/setup.sh` | First-time setup on a new machine. Interactive. |
+| `scripts/update.sh` | Pull both repos and redeploy symlinks. Non-interactive. |
+| `scripts/status.sh` | Check health, version, and sync state. |
+| `scripts/uninstall.sh` | Remove symlinks; optionally delete repos. |
+| `install.sh` | One-line bootstrap: downloads and runs setup. |
+
+All scripts support `--help` / `-h`.
+
+**Man pages** (Linux/macOS):
+
+```bash
+# View from the repo directory
+man ./man/man1/claude-dotfiles.1
+man ./man/man1/claude-dotfiles-setup.1
+man ./man/man1/claude-dotfiles-status.1
+man ./man/man1/claude-dotfiles-update.1
 ```
 
 ---
@@ -125,15 +193,19 @@ alias claude-update='bash ~/Projects/claude-dotfiles/scripts/update.sh'
 
 ```
 claude-dotfiles/
-├── CLAUDE.md                   ← your global Claude instructions (symlinked)
-├── machine.json.template       ← copy to ~/.claude/machine.json; fill in paths
-├── settings.json.template      ← copy to ~/.claude/settings.json; customise allowlist
+├── CLAUDE.md                   ← global Claude instructions (symlinked to ~/.claude/CLAUDE.md)
+├── machine.json.template       ← template; copy to ~/.claude/machine.json
+├── settings.json.template      ← template; copy to ~/.claude/settings.json
+├── install.sh                  ← one-line bootstrap installer
 ├── scripts/
-│   ├── setup.sh                ← one-time setup on a new machine
-│   └── update.sh               ← pull latest and redeploy
+│   ├── setup.sh                ← guided first-time setup (-h for help)
+│   ├── update.sh               ← pull latest and redeploy (-h for help)
+│   └── status.sh               ← health and sync check (-h for help)
+├── commands/                   ← built-in AI commands (symlinked to ~/.claude/commands/)
+├── man/man1/                   ← man pages for all scripts
+├── schemas/                    ← JSON schemas for machine.json and shared.json
 ├── examples/
-│   └── machine.json.example    ← a worked example
-├── .gitignore                  ← excludes machine.json, settings.json
+│   └── machine.json.example    ← worked example
 └── LICENSE                     ← MIT
 ```
 

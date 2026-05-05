@@ -8,6 +8,11 @@
   "knowledge_dirs": {
     "example": "/path/to/specific/knowledge-dir"
   },
+  "project_dirs": {
+    "example-project": "/path/to/specific/project"
+  },
   "command_prefix_enabled": false,
-  "command_prefix": "--"
+  "command_prefix": "--",
+  "dotfiles_dir": "/path/to/claude-dotfiles",
+  "personal_config_dir": "/path/to/your/private/claude-config"
 }

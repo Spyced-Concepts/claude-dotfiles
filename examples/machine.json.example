@@ -6,8 +6,15 @@
   "project_root": "/Users/yourname/Projects",
   "knowledge_root": "/Users/yourname",
   "knowledge_dirs": {
-    "archive": "/Users/yourname/Archive"
+    "notes": "/Users/yourname/notes",
+    "work": "/Users/yourname/work-docs"
+  },
+  "project_dirs": {
+    "website": "/Users/yourname/Projects/spycedconceptsweb",
+    "api": "/Users/yourname/Projects/myapi"
   },
   "command_prefix_enabled": true,
-  "command_prefix": "--"
+  "command_prefix": "--",
+  "dotfiles_dir": "/Users/yourname/.local/share/claude-dotfiles",
+  "personal_config_dir": "/Users/yourname/.local/share/claude-config"
 }

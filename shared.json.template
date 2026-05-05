@@ -1,17 +1,28 @@
 {
   "$schema": "https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/schemas/shared.schema.json",
   "variables": {
-    "EXAMPLE": "Description of what this variable represents — not a path"
+    "notes": "Personal notes, todos, and reference material",
+    "work": "Work documents and project planning"
   },
+  "project_dirs": [
+    "website",
+    "api"
+  ],
+  "knowledge_dirs": [
+    "notes",
+    "work"
+  ],
   "commands_enabled": [
-    "seclog",
-    "monthly-check",
-    "quarterly-review",
-    "update"
+    "daily",
+    "todo",
+    "week-review",
+    "journal",
+    "health-check",
+    "update",
+    "status"
   ],
   "preferences": {
     "greeting": true,
-    "greeting_once_per_day": true,
-    "seclog_on_session_start": false
+    "greeting_once_per_day": true
   }
 }

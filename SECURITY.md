@@ -18,14 +18,79 @@ We aim to acknowledge all security reports within 48 hours and will keep you inf
 
 ---
 
+## Security considerations for users
+
+### Running scripts from the internet
+
+The one-line installer uses `curl | bash`, which executes a remote script directly.
+**Before running any install command, verify the URL is the official GitHub repository:**
+
+```
+https://github.com/Spyced-Concepts/claude-dotfiles
+```
+
+If you prefer to inspect the script before running it:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh > install.sh
+cat install.sh        # review it
+bash install.sh       # then run it
+```
+
+### Your personal config repo must be private
+
+Your personal config repo contains your name, role, location, and any custom
+instructions you give Claude. **This repo must be set to private on GitHub.**
+Never make it public. The setup script creates it as private by default.
+
+If you accidentally made it public: go to your repo's Settings → Danger Zone → Change repository visibility → Private.
+
+### Files that must never be committed
+
+The following files contain machine-specific paths or permissions and are
+excluded by `.gitignore` in this repo. Never commit them to any public or
+shared repo:
+
+| File | Why |
+|---|---|
+| `~/.claude/machine.json` | Local filesystem paths |
+| `~/.claude/settings.json` | Permissions allowlist |
+
+### CLAUDE.md
+
+`~/.claude/CLAUDE.md` is your global Claude Code configuration. It is loaded
+in every Claude session. Review its contents to ensure it only instructs Claude
+to take actions you expect. If it contains sensitive information (passwords,
+API keys, personal data beyond what you intend), move that information
+elsewhere.
+
+### setup.sh and update.sh
+
+These are shell scripts that run on your machine. Review them before running:
+
+```bash
+cat scripts/setup.sh
+cat scripts/update.sh
+```
+
+`setup.sh` creates symlinks, writes `~/.claude/machine.json` and
+`~/.claude/settings.json`, and may call `gh` to create a private GitHub repo.
+`update.sh` pulls from the remote and re-runs `setup.sh`.
+
+---
+
 ## Scope
 
-claude-dotfiles is a configuration framework. Security considerations include:
+claude-dotfiles is a configuration framework. In-scope security issues include:
 
-- **machine.json** — contains local filesystem paths; never commit this file (excluded by `.gitignore`)
-- **settings.json** — contains permissions allowlist; never commit this file (excluded by `.gitignore`)
-- **CLAUDE.md** — the global config template; review before symlinking to ensure it doesn't instruct Claude to take actions you wouldn't expect
-- **setup.sh / update.sh** — shell scripts; review before running, as with any install script
+- **Injection vulnerabilities** in setup.sh, update.sh, status.sh, check-docs.sh
+- **Symlink attacks** involving `~/.claude/CLAUDE.md` or `~/.claude/commands/`
+- **Information disclosure** — any scenario where sensitive data could be
+  written to a public location
+- **Dependency issues** — any supply chain concern with the scripts or templates
+
+Out of scope: issues in Claude Code itself (Anthropic's software), GitHub, or
+the user's private config repo.
 
 ---
 
@@ -40,4 +105,6 @@ claude-dotfiles is a configuration framework. Security considerations include:
 
 ## Disclosure policy
 
-We follow responsible disclosure. Once a vulnerability is confirmed and patched, we will publish details in a GitHub Security Advisory and note the fix in `VERSION.md`.
+We follow responsible disclosure. Once a vulnerability is confirmed and patched,
+we will publish details in a GitHub Security Advisory and note the fix in
+`VERSION.md`.
