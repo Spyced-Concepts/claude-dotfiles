@@ -22,6 +22,6 @@ jobs:
       - name: Run documentation check
         run: bash scripts/check-docs.sh
 
-      - name: Upload check report on failure
+      - name: Show failure detail
         if: failure()
-        run: bash scripts/check-docs.sh 2>&1 || true
+        run: bash scripts/check-docs.sh || true

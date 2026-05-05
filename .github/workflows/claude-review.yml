@@ -25,8 +25,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr diff ${{ github.event.pull_request.number }} 2>/dev/null \
-            | head -n 400 > /tmp/pr_diff.txt
-          LINES=$(wc -l < /tmp/pr_diff.txt)
+            | head -n 1500 > "$RUNNER_TEMP/pr_diff.txt"
+          LINES=$(wc -l < "$RUNNER_TEMP/pr_diff.txt")
           echo "lines=$LINES" >> "$GITHUB_OUTPUT"
           echo "Captured $LINES lines"
 
@@ -46,8 +46,8 @@ jobs:
           DIFF_LINES: ${{ steps.diff.outputs.lines }}
         run: |
           NOTE=""
-          if [ "${DIFF_LINES:-0}" -ge 400 ]; then
-            NOTE="> Diff was large - review based on first 400 lines only."
+          if [ "${DIFF_LINES:-0}" -ge 1500 ]; then
+            NOTE="> Diff was large - review based on first 1500 lines only."
           fi
           BODY=$(printf "## Claude Code Review\n\n%s%s\n\n---\n*Automated review by Claude Sonnet. Maintainer approval required.*" "$NOTE" "$REVIEW")
           gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"

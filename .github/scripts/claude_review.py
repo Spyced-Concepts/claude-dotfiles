@@ -8,7 +8,9 @@ import sys
 import urllib.request
 import urllib.error
 
-diff      = open("/tmp/pr_diff.txt").read()
+runner_temp = os.environ.get("RUNNER_TEMP", "/tmp")
+diff_path   = os.path.join(runner_temp, "pr_diff.txt")
+diff        = open(diff_path).read()
 pr_title  = os.environ.get("PR_TITLE", "")
 pr_body   = os.environ.get("PR_BODY", "")
 pr_number = os.environ.get("PR_NUMBER", "")
@@ -37,17 +39,23 @@ user = (
     f"{diff_block}\n"
     "```\n\n"
     "Review against these criteria:\n"
-    "1. **Correctness** — does the code do what it claims?\n"
+    "1. **Correctness** — does the code do what it claims? Are edge cases handled?\n"
     "2. **Cross-platform** — will it work on macOS, Linux, and Windows Git Bash?\n"
-    "3. **Bash quality** — set -euo pipefail, quoting, portability\n"
-    "4. **Security** — unsafe variable expansion, path injection, hardcoded secrets\n"
-    "5. **Documentation** — --help updated, man page present, check-docs standards met\n"
-    "6. **UAT coverage** — does the PR reference relevant UAT-NNN test case IDs?\n"
-    "7. **PR scope** — single concern? or should it be split?\n\n"
+    "3. **Bash quality** — set -euo pipefail, quoting, portability, no bashisms\n"
+    "4. **Security** — no hardcoded secrets, no path injection, no unsafe variable "
+    "expansion, no insecure temp file usage, inputs validated at boundaries\n"
+    "5. **Code quality** — no magic numbers or strings (use named constants), no code "
+    "smells (duplicated logic, deep nesting, overly long functions), correct approach "
+    "for the problem\n"
+    "6. **Dependencies** — no unnecessary community modules; bash builtins and Python "
+    "stdlib only; flag any import that is not from the Python standard library\n"
+    "7. **Documentation** — --help updated, man page present, check-docs standards met\n"
+    "8. **UAT coverage** — does the PR reference relevant UAT-NNN test case IDs?\n"
+    "9. **PR scope** — single concern? or should it be split?\n\n"
     "End your review with exactly one of:\n"
-    "✅ **APPROVE**\n"
-    "⚠️ **APPROVE WITH NOTES**\n"
-    "❌ **REQUEST CHANGES**"
+    "APPROVE\n"
+    "APPROVE WITH NOTES\n"
+    "REQUEST CHANGES"
 )
 
 payload = {
@@ -76,7 +84,7 @@ try:
 except urllib.error.HTTPError as e:
     err_body = e.read().decode()
     print(f"::error::Claude API error {e.code}: {err_body}")
-    review = f"Claude review could not complete (API error {e.code}). Maintainer review required."
+    sys.exit(1)
 
 delimiter = "CLAUDE_REVIEW_EOF"
 with open(os.environ["GITHUB_OUTPUT"], "a") as out:
