@@ -23,7 +23,7 @@ The user may invoke this command in several ways:
 Walk the user through identifying the correct tier, then write the rule.
 
 **With tier:** `--saverule global "rule text"`
-Skip the tier question — write directly to the specified tier.
+Skip the tier question — write directly to the specified tier. If no rule text is provided (e.g. `--saverule global` with no quoted string), ask: **"What rule would you like to save?"** before proceeding.
 
 **Multiple tiers:** `--saverule global,project "rule text"`
 Write to more than one tier in a single command. Confirm each location before writing.
@@ -47,11 +47,24 @@ Show the taxonomy table and exit without writing anything.
    ```
    If unsure, suggest the most likely tier based on the rule content and explain why.
 
-3. If `folder`: ask which folder. If the named folder has no `CLAUDE.md`, tell the user and ask whether to create one before proceeding.
+3. If `folder`: ask which folder. If the named folder has no `CLAUDE.md`, tell the user and ask whether to create one. If yes, create it with this minimal scaffold:
+   ```markdown
+   # [Folder Name] — Notes for Claude
+
+   Instructions specific to this folder.
+   ```
+   Append the rule under a relevant heading, or add a new one.
 
 4. If `local`: tell the user this tier is not yet implemented and suggest they use `global` (synced-rules) as a temporary home, or defer until Local Global support is available in a future release. Do not write anything.
 
-5. If `global`: read `personal_config_dir` from `~/.claude/machine.json`. If the field is absent or the path does not exist, stop and tell the user to run `setup` first to connect their synced-rules repo. Do not guess a path.
+5. If `global`: read `personal_config_dir` from `~/.claude/machine.json`. If the field is absent or the path does not exist, stop and tell the user to run `setup` first to connect their synced-rules repo. Do not guess a path. If the path exists but contains no `CLAUDE.md`, offer to create one with this minimal scaffold:
+   ```markdown
+   # Personal Claude Code Configuration
+
+   ## Rules
+
+   ```
+   Then append the rule under `## Rules`.
 
 6. If `project`: determine the project name from the git remote URL or the current directory name — do not leave `[Project Name]` as a literal placeholder. Ask the user to confirm the name if it cannot be determined unambiguously.
 
@@ -59,6 +72,17 @@ Show the taxonomy table and exit without writing anything.
    - The target file path
    - The exact content that will be written
    Ask: **"Write this? (y/n)"** Wait for confirmation. Only write after receiving `y`.
+
+---
+
+## Section placement
+
+When appending a rule to an existing CLAUDE.md or AGENTS.md, choose the section as follows:
+
+1. **Scan existing headings** — if a heading clearly matches the rule's topic (e.g. "Branch workflow", "Commit conventions", "Behaviour defaults"), append there.
+2. **No clear match** — create a new `##` heading using a short descriptive name derived from the rule content.
+3. **Never append to the top of the file** — always place rules under a heading.
+4. **Show the chosen section** to the user in the confirmation step (step 7) so they can redirect if it's wrong.
 
 ---
 

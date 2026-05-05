@@ -872,6 +872,52 @@ Run the same command in a directory where the git remote URL is absent or ambigu
 
 ---
 
+### UAT-032 — saverule: tier specified but no rule text provided
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule global` (tier given, no quoted rule text)
+
+**Then**
+- [ ] Claude asks "What rule would you like to save?" before proceeding
+- [ ] Flow continues normally once the user provides the rule text
+- [ ] Nothing is written until rule text is provided and confirmed
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-033 — saverule: global tier where personal_config_dir path has no CLAUDE.md
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**Given**
+- `personal_config_dir` is set in `~/.claude/machine.json` and the directory exists
+- The directory contains no `CLAUDE.md`
+
+**When** the user types `--saverule global "any rule"`
+
+**Then**
+- [ ] Claude detects the missing `CLAUDE.md` and offers to create one
+- [ ] If accepted, a minimal `CLAUDE.md` scaffold is created with a `## Rules` section
+- [ ] Rule is appended under `## Rules`
+- [ ] User is shown the full content before any write
+- [ ] Nothing is written without confirmation
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
 ## Regression checklist
 
 Run this after any change to `scripts/` or `CLAUDE.md`. Tick each item before raising a PR.
@@ -927,6 +973,8 @@ Summary of test pass rates by platform and release.
 | UAT-029 | saverule: multi-tier write | ⬜ | ⬜ | ⬜ |
 | UAT-030 | saverule: Local Global rule tier coming-soon message | ⬜ | ⬜ | ⬜ |
 | UAT-031 | saverule: safety prompt for sensitive content | ⬜ | ⬜ | ⬜ |
+| UAT-032 | saverule: tier given, no rule text | ⬜ | ⬜ | ⬜ |
+| UAT-033 | saverule: global tier, no CLAUDE.md in synced-rules dir | ⬜ | ⬜ | ⬜ |
 
 **Notes:**
 ¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
