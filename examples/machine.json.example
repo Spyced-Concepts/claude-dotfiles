@@ -15,6 +15,7 @@
   },
   "command_prefix_enabled": true,
   "command_prefix": "--",
+  "screenshots_dir": "/Users/yourname/Pictures/Screenshots",
   "dotfiles_dir": "/Users/yourname/.local/share/claude-dotfiles",
   "personal_config_dir": "/Users/yourname/.local/share/claude-config"
 }
