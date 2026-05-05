@@ -705,6 +705,219 @@ bash scripts/setup.sh
 
 ---
 
+### UAT-025 — saverule: help / list mode
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**When** the user types `--saverule help` or `--saverule list`
+
+**Then**
+- [ ] Taxonomy table is shown (all four tiers with friendly names and scope)
+- [ ] No file is written
+- [ ] Local Global tier is marked as `(coming soon)`
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-026 — saverule: write to global (synced-rules) tier
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**Given**
+- `personal_config_dir` is set in `~/.claude/machine.json` and points to a valid synced-rules repo
+- The synced-rules `CLAUDE.md` exists
+
+**When** the user types `--saverule global "never use deprecated API endpoints"`
+
+**Then**
+- [ ] Rule is appended to an appropriate section of the synced-rules `CLAUDE.md`
+- [ ] User is shown exactly what will be written and where before the write happens
+- [ ] File is written only after confirmation
+- [ ] Confirmation shown after write
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-027 — saverule: write to folder tier
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**Given**
+- A knowledge folder with a `CLAUDE.md` exists
+
+**When** the user types `--saverule folder "always use British English spelling"`
+
+**Then**
+- [ ] User is asked which folder
+- [ ] Rule is appended to the folder's `CLAUDE.md` in an appropriate section
+- [ ] User is shown what will be written before the write happens
+- [ ] File is written only after confirmation
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-028 — saverule: write to project tier
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical
+
+**Given**
+- Current working directory is a git repo
+- No `AGENTS.md` or `.claude/CLAUDE.md` exist yet
+
+**When** the user types `--saverule project "always run check-docs.sh before committing"`
+
+**Then**
+- [ ] `AGENTS.md` is created in the repo root using the standard scaffold
+- [ ] `.claude/CLAUDE.md` is created referencing `AGENTS.md`
+- [ ] Rule is written into `AGENTS.md`
+- [ ] User is shown what will be written before the write happens
+- [ ] `[Project Name]` placeholder is resolved — not left as a literal string
+- [ ] Files are written only after confirmation
+
+**Additional scenario — ambiguous project name:**
+
+Run the same command in a directory where the git remote URL is absent or ambiguous and the directory name is also ambiguous (e.g. a temp directory).
+
+- [ ] Claude asks the user to confirm the project name rather than guessing
+- [ ] `[Project Name]` is never written literally to any file
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-029 — saverule: multi-tier write
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule global,project "use conventional commit format"`
+
+**Then**
+- [ ] Both target locations are shown before any write
+- [ ] User is asked to confirm each write separately (`y/n`)
+- [ ] Accepting both writes both files correctly
+- [ ] Declining the second write after accepting the first leaves the first write intact (no rollback of already-confirmed writes)
+- [ ] User is informed of partial write if only one tier was accepted
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-030 — saverule: Local Global rule tier blocked with coming-soon message
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule local "any rule"`
+
+**Then**
+- [ ] Message shown explaining Local Global tier is not yet implemented
+- [ ] User is offered `global` (synced-rules) as a temporary alternative or told to defer
+- [ ] Nothing is written to any file
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-031 — saverule: safety prompt for sensitive content
+
+**Feature:** `--saverule` command  
+**Priority:** P1 Critical  
+**Note:** This check is LLM-judgment-based, not pattern-matched. It cannot reliably detect all sensitive content. The test verifies that the prompt fires for obvious cases — it does not guarantee detection of all personal or security-sensitive content. Treat passes as "fires when expected" not "guaranteed to catch everything."
+
+**When** the user attempts to save a rule containing personal information or security-sensitive content to the `project` tier (e.g. `--saverule project "my API key is abc123"`)
+
+**Then**
+- [ ] The safety prompt fires before any write
+- [ ] User is told why this content should not go in a project file
+- [ ] User is redirected to `global` (synced-rules) tier instead
+- [ ] Nothing is written to `AGENTS.md` or `.claude/CLAUDE.md`
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-032 — saverule: tier specified but no rule text provided
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**When** the user types `--saverule global` (tier given, no quoted rule text)
+
+**Then**
+- [ ] Claude asks "What rule would you like to save?" before proceeding
+- [ ] Flow continues normally once the user provides the rule text
+- [ ] Nothing is written until rule text is provided and confirmed
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
+### UAT-033 — saverule: global tier where personal_config_dir path has no CLAUDE.md
+
+**Feature:** `--saverule` command  
+**Priority:** P2 High
+
+**Given**
+- `personal_config_dir` is set in `~/.claude/machine.json` and the directory exists
+- The directory contains no `CLAUDE.md`
+
+**When** the user types `--saverule global "any rule"`
+
+**Then**
+- [ ] Claude detects the missing `CLAUDE.md` and offers to create one
+- [ ] If accepted, a minimal `CLAUDE.md` scaffold is created with a `## Rules` section
+- [ ] Rule is appended under `## Rules`
+- [ ] User is shown the full content before any write
+- [ ] Nothing is written without confirmation
+
+| Platform | Status | Tester | Date | Notes |
+|---|---|---|---|---|
+| Windows (Git Bash) | ⬜ | | | |
+| macOS | ⬜ | | | |
+| Linux | ⬜ | | | |
+
+---
+
 ## Regression checklist
 
 Run this after any change to `scripts/` or `CLAUDE.md`. Tick each item before raising a PR.
@@ -753,6 +966,15 @@ Summary of test pass rates by platform and release.
 | UAT-022 | Setup: `projects` → `project_root` migration | ⬜ | ⬜ | ✅ |
 | UAT-023 | Setup: personal config at non-standard path | ⬜ | ⬜ | ✅ |
 | UAT-024 | Commands: public + private both available | ⬜ | ⬜ | ✅ |
+| UAT-025 | saverule: help / list mode | ⬜ | ⬜ | ⬜ |
+| UAT-026 | saverule: write to global tier | ⬜ | ⬜ | ⬜ |
+| UAT-027 | saverule: write to folder tier | ⬜ | ⬜ | ⬜ |
+| UAT-028 | saverule: write to project tier | ⬜ | ⬜ | ⬜ |
+| UAT-029 | saverule: multi-tier write | ⬜ | ⬜ | ⬜ |
+| UAT-030 | saverule: Local Global rule tier coming-soon message | ⬜ | ⬜ | ⬜ |
+| UAT-031 | saverule: safety prompt for sensitive content | ⬜ | ⬜ | ⬜ |
+| UAT-032 | saverule: tier given, no rule text | ⬜ | ⬜ | ⬜ |
+| UAT-033 | saverule: global tier, no CLAUDE.md in synced-rules dir | ⬜ | ⬜ | ⬜ |
 
 **Notes:**
 ¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
