@@ -34,9 +34,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr diff ${{ github.event.pull_request.number }} 2>/dev/null \
-            | head -n 1500 > "$RUNNER_TEMP/pr_diff.txt"
+          set -euo pipefail
+          gh pr diff ${{ github.event.pull_request.number }} \
+            | head -n 1500 > "$RUNNER_TEMP/pr_diff.txt" || true
           LINES=$(wc -l < "$RUNNER_TEMP/pr_diff.txt")
+          if [ "${LINES:-0}" -eq 0 ]; then
+            echo "::error::Diff is empty — gh pr diff may have failed or PR has no changes"
+            exit 1
+          fi
           echo "lines=$LINES" >> "$GITHUB_OUTPUT"
           echo "Captured $LINES lines"
 
