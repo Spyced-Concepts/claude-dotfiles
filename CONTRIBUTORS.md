@@ -37,6 +37,8 @@ release/vX.X.X ─→ main                  PR #3 — monthly release cut
 
 **VERSION.md** is updated on the release branch — either incrementally as features land, or as a final commit before the PR to main. Never on a feature branch, never directly on main.
 
+> **Permitted exception:** Updating `VERSION.md` directly on a release branch (e.g. `release/v1.5.0`) without a PR is allowed — this is the one case where a direct commit to a protected branch is acceptable. Only `VERSION.md` may be updated this way. All other changes must go through a feature branch and PR.
+
 ### Branch naming
 
 | Branch type | Convention | Example |
