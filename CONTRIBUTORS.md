@@ -159,6 +159,22 @@ Do not update `VERSION.md` on your feature branch — that happens on the releas
 
 PRs directly against `main` will not be accepted.
 
+### PR size guidelines
+
+PRs are reviewed manually. Large, wide-ranging PRs slow the whole pipeline — review takes longer, feedback is harder to act on, and merge conflicts are more likely. Keep PRs focused.
+
+| | Guideline |
+|---|---|
+| **Scope** | One concern per PR — one bug fix, one feature, one refactor. Mixed-concern PRs will be asked to split. |
+| **Files changed** | Aim for under 10 files. PRs touching more than 20 files will receive extra scrutiny. |
+| **Lines changed** | Aim for under 300 lines (excluding generated files, schemas, and test data). |
+| **Commits** | Squash noise commits before opening the PR. Each commit should be a coherent unit. |
+| **UAT reference** | Link the relevant UAT test case IDs (e.g. *"covers UAT-006, UAT-007"*) so reviewers know what to test. |
+
+**If your change is naturally large** (e.g. a new script that requires a man page, a command, and schema updates), that is fine — the size guideline is about avoiding unrelated changes being bundled together, not about penalising complete, coherent features.
+
+**For forked repos:** the same rules apply. A PR from a fork that touches multiple unrelated areas will be asked to split before review begins. This keeps review time predictable and feedback actionable.
+
 ---
 
 ## Maintainer workflow
