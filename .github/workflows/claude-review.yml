@@ -1,9 +1,5 @@
 name: Claude PR Review
 
-# Automated code review by Claude Sonnet on every PR targeting
-# functional-test or release branches. Posts a structured review comment.
-# Requires ANTHROPIC_API_KEY in repository secrets.
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -22,8 +18,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Capture PR diff
         id: diff
@@ -34,34 +28,26 @@ jobs:
             | head -n 400 > /tmp/pr_diff.txt
           LINES=$(wc -l < /tmp/pr_diff.txt)
           echo "lines=$LINES" >> "$GITHUB_OUTPUT"
-          echo "Captured $LINES lines of diff"
+          echo "Captured $LINES lines"
 
       - name: Run Claude review
         id: review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PR_TITLE:          ${{ github.event.pull_request.title }}
-          PR_BODY:           ${{ github.event.pull_request.body }}
-          PR_NUMBER:         ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python3 .github/scripts/claude_review.py
 
       - name: Post review comment
         env:
-          GH_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW: ${{ steps.review.outputs.review }}
           DIFF_LINES: ${{ steps.diff.outputs.lines }}
-          REVIEW:     ${{ steps.review.outputs.review }}
         run: |
           NOTE=""
           if [ "${DIFF_LINES:-0}" -ge 400 ]; then
-            NOTE="> ⚠️ Diff was large — review based on first 400 lines only."$'\n\n'
+            NOTE="> Diff was large - review based on first 400 lines only."
           fi
-
-          BODY="## 🤖 Claude Code Review
-
-${NOTE}${REVIEW}
-
----
-*Automated review by Claude Sonnet · claude-dotfiles CI · [What is this?](https://github.com/Spyced-Concepts/claude-dotfiles/blob/main/CONTRIBUTORS.md)*
-*Maintainer approval is required before merge.*"
-
+          BODY=$(printf "## Claude Code Review\n\n%s%s\n\n---\n*Automated review by Claude Sonnet. Maintainer approval required.*" "$NOTE" "$REVIEW")
           gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"
