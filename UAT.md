@@ -106,7 +106,7 @@ bash scripts/setup.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | |
-| macOS | ✅ | Stu Last | 2026-05-05 | machine.json fields preserved (including custom `vaults` field). Commands converted from plain files to symlinks. CLAUDE.md re-pointed to ~/.local/share/claude-config. 3 personal commands linked. "Setup complete." printed. |
+| macOS | ✅ | Stu Last | 2026-05-05 | machine.json fields preserved (including custom fields). Commands converted from plain files to symlinks. CLAUDE.md re-pointed to personal config. 3 personal commands linked. "Setup complete." printed. |
 | Linux | ✅ | maintainer | 2026-05-05 | Covered by UAT-022 variant — legacy `projects` field migrated, personal config cloned to standard XDG path. See UAT-022 for migration detail. |
 
 ---
@@ -309,7 +309,7 @@ bash scripts/status.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ✅ | maintainer | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
-| macOS | ✅ | Stu Last | 2026-05-05 | All four ✓: machine.json, CLAUDE.md symlink, dotfiles up to date (d1a9f62), personal config in sync. Exit 0. Note: upstream tracking must be set manually on functional-test branch (`git branch --set-upstream-to=origin/functional-test`). |
+| macOS | ✅ | Stu Last | 2026-05-05 | All four ✓: machine.json, CLAUDE.md symlink, dotfiles up to date, personal config in sync. Exit 0. Note: upstream tracking must be set manually on functional-test branch (`git branch --set-upstream-to=origin/functional-test`). |
 | Linux | ⬜ | | | |
 
 ---
@@ -386,7 +386,7 @@ bash scripts/status.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ✅ | Stu Last | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (25,813 bytes). 14 command symlinks removed, commands dir empty. machine.json and settings.json retained. Both repos intact. "Uninstall complete." Exit 0. Reinstall via `bash scripts/setup.sh` confirmed working immediately — personal_config_dir auto-detected, pulled, commands re-linked, status exit 0. |
+| macOS | ✅ | Stu Last | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (correct content). 14 command symlinks removed, commands dir empty. machine.json and settings.json retained. Both repos intact. "Uninstall complete." Exit 0. Reinstall via `bash scripts/setup.sh` confirmed working immediately — personal_config_dir auto-detected, pulled, commands re-linked, status exit 0. |
 | Linux | ✅ | maintainer | 2026-05-05 | CLAUDE.md symlink removed, plain file restored from personal config (20KB, correct content). 13 command symlinks removed. machine.json and settings.json retained. Both repos intact. "Uninstall complete." printed. Exit 0. Reinstall via setup.sh confirmed working immediately after. |
 
 ---
@@ -636,7 +636,7 @@ bash scripts/setup.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ✅ | Stu Last | 2026-05-05 | `projects` field removed, `project_root` written correctly (`/Users/stuartlast/Projects`). `dotfiles_dir` added. Custom `vaults` field and all other existing fields preserved. `status.sh` exits 0 after migration. Note: default shown at Projects folder prompt is `~/Projects` (from `$HOME/Projects`) — matched actual path so Enter was sufficient. |
+| macOS | ✅ | Stu Last | 2026-05-05 | `projects` field removed, `project_root` written correctly. `dotfiles_dir` added. Custom fields and all other existing fields preserved. `status.sh` exits 0 after migration. Note: default shown at Projects folder prompt is `~/Projects` (from `$HOME/Projects`) — matched actual path so Enter was sufficient. |
 | Linux | ✅ | maintainer | 2026-05-05 | `projects` field removed, `project_root` written correctly. `dotfiles_dir` and `personal_config_dir` also populated in same run. |
 
 ---
@@ -667,8 +667,8 @@ bash scripts/setup.sh
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ✅ | Stu Last | 2026-05-05 | Original at `~/Projects/claude-config` untouched. New clone created at `~/.local/share/claude-config`. `personal_config_dir` set to new path. CLAUDE.md symlinked to new copy. 3 personal commands linked from new copy. "Setup complete." |
-| Linux | ✅ | maintainer | 2026-05-05 | New clone created at `~/.local/share/claude-config`. Original at `~/Projects/claude-config` untouched. `personal_config_dir` set to new path. |
+| macOS | ✅ | Stu Last | 2026-05-05 | Original at non-standard path untouched. New clone created at `~/.local/share/claude-config`. `personal_config_dir` set to new path. CLAUDE.md symlinked to new copy. 3 personal commands linked from new copy. "Setup complete." |
+| Linux | ✅ | maintainer | 2026-05-05 | New clone created at `~/.local/share/claude-config`. Original at non-standard path untouched. `personal_config_dir` set to new path. |
 
 ---
 
@@ -686,7 +686,7 @@ bash scripts/setup.sh
 
 **Then**
 - [ ] All public built-in commands are listed (daily, health-check, journal, status, todo, update, week-review, commands, docscheck, uninstall)
-- [ ] All personal commands are also listed (e.g. seclog, monthly-check, quarterly-review)
+- [ ] All personal commands are also listed
 - [ ] Each entry shows the correct invoke syntax with the configured prefix
 - [ ] No duplicate entries for commands with the same name (personal overrides built-in silently)
 
@@ -695,12 +695,12 @@ bash scripts/setup.sh
 - Each personal command symlinks to the `personal_config_dir/commands/` path
 - No broken symlinks
 
-**Windows note:** `ls -la` will not show symlink arrows. Verify by checking file content: `cat ~/.claude/commands/seclog.md` should match the personal config version.
+**Windows note:** `ls -la` will not show symlink arrows. Verify by checking file content against the personal config version.
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
-| macOS | ✅ | Stu Last | 2026-05-05 | 11 public commands symlinked to dotfiles_dir; 3 personal commands (seclog, monthly-check, quarterly-review) symlinked to ~/.local/share/claude-config/commands/. All resolve correctly. No duplicates. No broken symlinks. |
+| macOS | ✅ | Stu Last | 2026-05-05 | 11 public commands symlinked to dotfiles_dir; 3 personal commands symlinked to personal_config_dir. All resolve correctly. No duplicates. No broken symlinks. |
 | Linux | ✅ | maintainer | 2026-05-05 | 10 public + 3 private commands linked. All resolve correctly. No duplicates. |
 
 ---
