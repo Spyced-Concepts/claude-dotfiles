@@ -43,6 +43,14 @@
     "command_prefix": {
       "type": "string",
       "description": "The prefix that triggers a custom command. Any string except / (which the Claude Code CLI intercepts). Examples: --, !, >, cmd:, run:. Set to empty string \"\" for no prefix — command names are used directly (e.g. 'daily'). Only used when command_prefix_enabled is true."
+    },
+    "dotfiles_dir": {
+      "type": "string",
+      "description": "Absolute path to the claude-dotfiles repo on this machine. Set automatically by setup.sh. Used by status.sh and CLAUDE.md to locate scripts and check for updates."
+    },
+    "personal_config_dir": {
+      "type": "string",
+      "description": "Absolute path to your personal private config repo on this machine. Set by setup.sh when you connect or create your private config repo. Contains your personal CLAUDE.md, custom commands, and shared config. Setup is not complete without this."
     }
   }
 }

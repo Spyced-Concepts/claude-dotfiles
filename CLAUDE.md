@@ -61,6 +61,52 @@ Example: "notes": "/home/user/notes" → $NOTES
 
 ---
 
+## Startup Checks
+
+After loading machine.json, run the following checks **silently**. Report only when something needs attention — these are non-blocking warnings, never errors that stop the session.
+
+### claude-dotfiles version check
+
+If `dotfiles_dir` is present in machine.json:
+
+```bash
+git -C <dotfiles_dir> fetch --quiet origin 2>/dev/null
+local_sha=$(git -C <dotfiles_dir> rev-parse HEAD 2>/dev/null)
+remote_sha=$(git -C <dotfiles_dir> rev-parse @{u} 2>/dev/null)
+```
+
+If `local_sha` and `remote_sha` differ (and `remote_sha` is non-empty), output one warning line:
+
+> ⚠️ claude-dotfiles has updates available. Run: `bash <dotfiles_dir>/scripts/update.sh`
+
+### Personal config repo sync check
+
+If `personal_config_dir` is present in machine.json:
+
+```bash
+git -C <personal_config_dir> fetch --quiet origin 2>/dev/null
+status=$(git -C <personal_config_dir> status -b --porcelain 2>/dev/null)
+```
+
+- If `status` contains `[behind`: warn "⚠️ Your personal config has unpulled changes. Run: `git -C <personal_config_dir> pull`"
+- If `status` contains `[ahead`: warn "⚠️ Your personal config has unpushed commits. Run: `git -C <personal_config_dir> push`"
+
+### Setup completion check
+
+If the Identity section below still contains placeholder text (e.g. `[Your Name]`, `[Your Role]`), check this by running:
+
+```bash
+grep -q '\[Your Name\]' ~/.claude/CLAUDE.md 2>/dev/null
+```
+
+If the placeholder is found, tell the user their setup is not complete and offer to help:
+
+> *"Your claude-dotfiles setup isn't fully configured — the Identity section still has placeholder values. Would you like help setting up a private config repo to add your identity and personal commands?"*
+
+If the user says yes, guide them through creating a private GitHub repo, cloning it, copying and editing the CLAUDE.md template, and re-running setup.
+
+---
+
 ## Session Greeting
 
 Greet the user at the start of each session with:
@@ -97,6 +143,17 @@ Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels n
 4. Check: `ls ~/.claude/commands/commandname.md 2>/dev/null`
 5. If found: read the file and execute its instructions
 6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
+
+**Version warning (non-blocking):** Before running any command's instructions, check whether claude-dotfiles is behind remote. Use the `dotfiles_dir` from machine.json:
+
+```bash
+git -C <dotfiles_dir> rev-parse HEAD 2>/dev/null
+git -C <dotfiles_dir> rev-parse @{u} 2>/dev/null
+```
+
+If they differ, prepend a single warning to the command output — then continue with the command regardless:
+
+> ⚠️ claude-dotfiles has updates available. Run `bash <dotfiles_dir>/scripts/update.sh` when convenient.
 
 ---
 

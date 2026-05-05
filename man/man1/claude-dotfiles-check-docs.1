@@ -1,0 +1,62 @@
+.\" Man page for claude-dotfiles check-docs.sh
+.\" To view: man ./man/man1/claude-dotfiles-check-docs.1
+.TH CLAUDE\-DOTFILES\-CHECK\-DOCS 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles\-check\-docs \- verify that all scripts, commands, and documentation meet project standards
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/check-docs.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Runs a series of documentation quality checks against the claude-dotfiles
+repository. Designed to run before every PR and on every push (via CI). All
+checks must pass before a feature branch can be merged to a release branch.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.TP
+.BR \-q ", " \-\-quiet
+Suppress all output. Use the exit code only. Suitable for CI pipelines.
+.SH CHECKS
+.TP
+.B 1. Scripts — --help support
+Every \fI.sh\fR file in \fIscripts/\fR must contain a \fB--help\fR flag.
+.TP
+.B 2. Scripts — man pages
+Every \fI.sh\fR file in \fIscripts/\fR must have a corresponding man page at
+\fIman/man1/claude-dotfiles-<name>.1\fR.
+.TP
+.B 3. Man pages — required sections
+Every man page must contain: \fBNAME\fR, \fBSYNOPSIS\fR, \fBDESCRIPTION\fR,
+\fBOPTIONS\fR, \fBEXIT STATUS\fR, \fBEXAMPLES\fR, \fBSEE ALSO\fR.
+.TP
+.B 4. Commands — title line
+Every \fI.md\fR file in \fIcommands/\fR must begin with a markdown title
+(\fB# Title\fR).
+.TP
+.B 5. README.md — required sections
+\fIREADME.md\fR must contain all required top-level sections.
+.SH EXIT STATUS
+.TP
+.B 0
+All checks passed.
+.TP
+.B 1
+One or more checks failed.
+.SH EXAMPLES
+.TP
+Run before opening a PR:
+.B bash ./scripts/check-docs.sh
+.TP
+Use in CI (quiet mode):
+.B bash ./scripts/check-docs.sh --quiet || exit 1
+.TP
+Run as a Claude Code AI command:
+.B --docscheck
+.SH SEE ALSO
+.BR claude-dotfiles (1),
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-status (1)
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>

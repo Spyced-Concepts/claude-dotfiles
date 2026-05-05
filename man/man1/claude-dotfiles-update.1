@@ -1,0 +1,40 @@
+.\" Man page for claude-dotfiles update.sh
+.\" To view: man ./man/man1/claude-dotfiles-update.1
+.TH CLAUDE\-DOTFILES\-UPDATE 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles\-update \- pull the latest claude-dotfiles and redeploy symlinks
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/update.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Pulls the latest changes from the remote claude-dotfiles repository and
+re-runs \fBsetup.sh\fR to ensure all symlinks and config files are current.
+Safe to re-run at any time.
+.PP
+The update does \fInot\fR update your personal config repo. Manage that repo
+separately with \fBgit pull\fR.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.SH EXIT STATUS
+.TP
+.B 0
+Update completed successfully.
+.TP
+.B 1
+git pull or setup failed.
+.SH EXAMPLES
+.TP
+Update claude-dotfiles:
+.B bash ~/.local/share/claude-dotfiles/scripts/update.sh
+.TP
+Using the alias added by install.sh:
+.B claude-update
+.SH SEE ALSO
+.BR claude-dotfiles (1),
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-status (1)
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>

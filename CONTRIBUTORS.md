@@ -63,15 +63,74 @@ refactor: simplify machine.json validation in setup.sh
 
 ---
 
+## Documentation standards
+
+All documentation must meet the following standards. The CI workflow
+(`docs-check.yml`) enforces these on every push. Locally, run:
+
+```bash
+bash scripts/check-docs.sh
+```
+
+Or as a Claude Code command (if configured):
+
+```
+--docscheck
+```
+
+### Scripts
+
+Every script in `scripts/` must:
+
+- Support `-h` and `--help` flags that print usage to stdout and exit 0
+- Have a corresponding man page in `man/man1/claude-dotfiles-<name>.1`
+
+### Man pages
+
+Every man page must include these sections (in order where possible):
+
+| Section | Purpose |
+|---|---|
+| `NAME` | One-line description |
+| `SYNOPSIS` | How to invoke |
+| `DESCRIPTION` | What it does |
+| `OPTIONS` | All flags documented |
+| `EXIT STATUS` | All exit codes listed |
+| `EXAMPLES` | At least one working example |
+| `SEE ALSO` | Related scripts and docs |
+
+Format: groff (`.1` suffix, section 1). View with: `man ./man/man1/<name>.1`
+
+### Commands (`commands/`)
+
+Every `.md` file in `commands/` must begin with a markdown title (`# Title`).
+
+### README.md
+
+Required top-level sections: `## What it does`, `## Quick start`,
+`## CLI reference`, `## File structure`, `## machine.json structure`,
+`## OS compatibility`, `## Contributing`, `## Licence`.
+
+### When to run
+
+- **Before every PR** — `bash scripts/check-docs.sh` must exit 0
+- **On every push** — CI enforces automatically via `docs-check.yml`
+
+If CI fails, fix the documentation issues before requesting a review. PRs with
+failing docs checks will not be reviewed.
+
+---
+
 ## Submitting a pull request
 
 1. **Clone** the repo (do not fork) — see README for why
 2. Create your branch from `main`: `git checkout -b feature/short-description`
 3. Make your changes
-4. Test on at least one OS — note which in the PR description
-5. Open **PR #1** against `functional-test`
-6. Describe what changed and why; include OS tested
-7. Once PR #1 is approved and merged, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch — this happens immediately on approval, not at end of cycle
+4. Run the documentation check: `bash scripts/check-docs.sh`
+5. Test on at least one OS — note which in the PR description
+6. Open **PR #1** against `functional-test`
+7. Describe what changed and why; include OS tested and docs-check result
+8. Once PR #1 is approved and merged, open **PR #2** from the same feature branch against the current `release/vX.X.X` branch — this happens immediately on approval, not at end of cycle
 
 Do not update `VERSION.md` on your feature branch — that happens on the release branch.
 
