@@ -48,7 +48,7 @@ At session start, load the machine config:
 | Variable | Source field | Description |
 |---|---|---|
 | `$HOME_DIR` | `home` | Home directory |
-| `$PROJECTS` | `project_root` | Root directory for all projects |
+| `$PROJECTS` | `project_root` (fall back to `projects` if absent — legacy field name) | Root directory for all projects |
 | `$SCREENSHOTS` | `screenshots_dir` | Folder where OS screenshots are saved — when the user says "screenshot", read the most recently modified file from here |
 
 Then load named project directories defined under `project_dirs`:
