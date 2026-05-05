@@ -9,7 +9,7 @@ Help the user place a rule, instruction, or convention in the right location bas
 | Tier | Keyword | Scope | Where it lives |
 |---|---|---|---|
 | Folder rule | `folder` | One vault or knowledge folder only | `CLAUDE.md` inside that folder |
-| Local Global rule *(coming soon)* | `local` | This machine only, never synced | Not yet implemented — planned for a future release |
+| Local Global rule *(coming soon)* | `local` | This machine only, not synced | Not yet implemented — planned for a future release |
 | Synced Global rule | `global` | All sessions on all machines | Your **synced-rules** repo `CLAUDE.md` (private config repo — `claude-config` by default) |
 | Project rule | `project` | Current code project only | `AGENTS.md` + `.claude/CLAUDE.md` in this repo |
 
@@ -47,15 +47,18 @@ Show the taxonomy table and exit without writing anything.
    ```
    If unsure, suggest the most likely tier based on the rule content and explain why.
 
-3. If `folder`: ask which folder. Read the relevant `CLAUDE.md` and append the rule in an appropriate section.
+3. If `folder`: ask which folder. If the named folder has no `CLAUDE.md`, tell the user and ask whether to create one before proceeding.
 
 4. If `local`: tell the user this tier is not yet implemented and suggest they use `global` (synced-rules) as a temporary home, or defer until Local Global support is available in a future release. Do not write anything.
 
-5. If `global`: read `personal_config_dir` from `~/.claude/machine.json`. Open the personal config `CLAUDE.md` and append the rule under an appropriate existing section, or create a new one if no section fits.
+5. If `global`: read `personal_config_dir` from `~/.claude/machine.json`. If the field is absent or the path does not exist, stop and tell the user to run `setup` first to connect their synced-rules repo. Do not guess a path.
 
-6. If `project`: write to both `AGENTS.md` and `.claude/CLAUDE.md` in the current working directory. If neither exists, create them following the project AI files standard (see `AGENTS.md` pattern below).
+6. If `project`: determine the project name from the git remote URL or the current directory name — do not leave `[Project Name]` as a literal placeholder. Ask the user to confirm the name if it cannot be determined unambiguously.
 
-7. Confirm exactly what was written and where before saving.
+7. **Before writing anything**, show the user:
+   - The target file path
+   - The exact content that will be written
+   Ask: **"Write this? (y/n)"** Wait for confirmation. Only write after receiving `y`.
 
 ---
 
@@ -65,6 +68,8 @@ When the user specifies multiple tiers (e.g. `global,project`), process each in 
 - Show the target file path
 - Show exactly what will be written
 - Ask "Write this? (y/n)" before saving
+
+If the user declines a tier mid-sequence, skip it and continue to the next. Tiers already written are not rolled back — tell the user which tiers were written and which were skipped.
 
 ---
 
@@ -99,7 +104,9 @@ Before writing any rule to `AGENTS.md` or `.claude/CLAUDE.md`, check:
 - No security or risk information (credentials, vulnerability details, security posture)
 - No business-sensitive content
 
-If the rule contains any of the above, redirect it to `global` (synced-rules) tier instead and explain why. Do not suggest `local` as a destination — it is not yet implemented.
+**This check is best-effort** — it relies on judgment, not technical enforcement. Use it as a prompt to think carefully, not as a guarantee. When in doubt, redirect to `global` (synced-rules) and explain why.
+
+If the rule clearly contains any of the above, redirect it to `global` (synced-rules) tier instead and explain why. Do not suggest `local` as a destination — it is not yet implemented.
 
 ---
 *Customise this command for your setup by editing `~/.claude/commands/saverule.md`*
