@@ -191,6 +191,42 @@ release/vX.X.X       ─→  main             (PR #3, monthly)
 
 ---
 
+## Backward compatibility
+
+**We evolve. We don't break.**
+
+Existing users run `update.sh` and their setup continues to work — without re-running setup, without reading changelogs, without any intervention. This is a hard requirement, not a guideline.
+
+### The rule
+
+**A user who set up claude-dotfiles on day one must be able to run `update.sh` on any future version and have everything continue working correctly.**
+
+There are no exceptions. If a change cannot meet this bar, it does not ship.
+
+### How to evolve without breaking
+
+**New `machine.json` fields must be optional with safe defaults.** Scripts must never crash because a field is absent. Use `_read_json_field` which returns an empty string for missing keys — build all logic to handle empty gracefully.
+
+**New behaviour must be additive.** Add capabilities; do not remove or change existing ones. If existing behaviour needs to change, provide the new behaviour alongside the old and deprecate the old over multiple releases before removing it.
+
+**`update.sh` must always be safe.** It pulls and refreshes symlinks. It must work correctly regardless of which version the user is coming from — including versions that pre-date the current schema.
+
+**`setup.sh` re-runs must be safe.** Re-running setup on an existing install must preserve all existing config and only add or update what is new. It must never reset, overwrite, or delete anything the user has configured.
+
+### When adding a new `machine.json` field
+
+1. Give it a safe empty-string default in all scripts — missing field = feature disabled, not crash
+2. Add it to `machine.schema.json` with a clear description
+3. Add it to `machine.json.template` and `examples/machine.json.example`
+4. Document it in `VERSION.md` under the relevant release
+5. Ensure a re-run of `setup.sh` populates it gracefully on existing machines
+
+### What a breaking change looks like — and why it is rejected
+
+A breaking change is anything that causes `update.sh` to produce a worse result than before: error on startup, lost config, broken symlinks, commands that stop working, or behaviour that changes without the user opting in. **These are not shipped.** If a proposed change would break existing installs, it must be redesigned until it does not.
+
+---
+
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org):

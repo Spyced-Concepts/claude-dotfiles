@@ -584,26 +584,30 @@ Summary of test pass rates by platform and release.
 
 | Test ID | Description | Windows | macOS | Linux |
 |---|---|---|---|---|
-| UAT-001 | Setup: new machine | ⬜ | ⬜ | ⬜ |
-| UAT-002 | Setup: re-run / update mode | ⬜ | ⬜ | ⬜ |
+| UAT-001 | Setup: new machine | ⚠️ partial¹ | ⬜ | ⬜ |
+| UAT-002 | Setup: re-run / update mode | ✅ | ⬜ | ⬜ |
 | UAT-003 | Setup: skip personal config | ⬜ | ⬜ | ⬜ |
 | UAT-004 | Setup: create repo via gh | ⬜ | ⬜ | ⬜ |
 | UAT-005 | Setup: no gh, manual instructions | ⬜ | ⬜ | ⬜ |
-| UAT-006 | Setup: CLAUDE.md backup and symlink | ⬜ | ⬜ | ⬜ |
-| UAT-007 | Setup: settings.json display | ⬜ | ⬜ | ⬜ |
-| UAT-008 | Setup: completion message | ⬜ | ⬜ | ⬜ |
+| UAT-006 | Setup: CLAUDE.md backup and symlink | ✅ | ⬜ | ⬜ |
+| UAT-007 | Setup: settings.json display | ✅ | ⬜ | ⬜ |
+| UAT-008 | Setup: completion message | ✅ | ⬜ | ⬜ |
 | UAT-009 | Update: pulls both repos | ⬜ | ⬜ | ⬜ |
-| UAT-010 | Status: all checks pass | ⬜ | ⬜ | ⬜ |
-| UAT-011 | Status: detects issues | ⬜ | ⬜ | ⬜ |
-| UAT-012 | Status: quiet mode | ⬜ | ⬜ | ⬜ |
+| UAT-010 | Status: all checks pass | ✅² | ⬜ | ⬜ |
+| UAT-011 | Status: detects issues | ✅ | ⬜ | ⬜ |
+| UAT-012 | Status: quiet mode | ✅ | ⬜ | ⬜ |
 | UAT-013 | Uninstall: symlinks + restore | ⬜ | ⬜ | ⬜ |
 | UAT-014 | Uninstall: detach mode | ⬜ | ⬜ | ⬜ |
 | UAT-015 | Uninstall: full removal | ⬜ | ⬜ | ⬜ |
-| UAT-016 | Docs check: all pass | ⬜ | ⬜ | ⬜ |
-| UAT-017 | Help flags | ⬜ | ⬜ | ⬜ |
+| UAT-016 | Docs check: all pass | ✅ | ⬜ | ⬜ |
+| UAT-017 | Help flags | ✅ | ⬜ | ⬜ |
 | UAT-018 | Man pages | N/A | ⬜ | ⬜ |
 | UAT-019 | One-line install | ⬜ | ⬜ | ⬜ |
-| UAT-020 | CI docs-check workflow | ⬜ (GitHub Actions) | | |
+| UAT-020 | CI docs-check workflow | ✅ (GitHub Actions) | | |
+
+**Notes:**
+¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
+² Symlinks show as `(regular file)` in status output on Windows — known platform display quirk, functionally correct. Documented in README OS compatibility section.
 
 ---
 
