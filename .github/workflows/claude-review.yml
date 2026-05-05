@@ -1,4 +1,14 @@
-name: Claude PR Review
+name: AI PR Review
+
+# Automated AI code review on every PR targeting functional-test or release
+# branches. Posts a structured review comment.
+#
+# Required repository configuration:
+#   Secrets:   AI_API_KEY  — your AI provider API key
+#   Variables: AI_MODEL    — model identifier (e.g. claude-sonnet-4-6)
+#
+# Default provider: Anthropic Claude. To use a different provider, adapt
+# .github/scripts/claude_review.py to match that provider's API format.
 
 on:
   pull_request:
@@ -33,7 +43,8 @@ jobs:
       - name: Run Claude review
         id: review
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

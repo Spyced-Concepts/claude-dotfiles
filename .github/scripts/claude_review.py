@@ -15,14 +15,22 @@ if not os.path.exists(diff_path):
     print(f"::error::Diff file not found at {diff_path}")
     sys.exit(1)
 
-diff = open(diff_path).read()
+with open(diff_path, encoding="utf-8") as f:
+    diff = f.read()
 pr_title  = os.environ.get("PR_TITLE", "")
 pr_body   = os.environ.get("PR_BODY", "")
 pr_number = os.environ.get("PR_NUMBER", "")
-api_key   = os.environ.get("ANTHROPIC_API_KEY", "")
+# Provider configuration — set AI_API_KEY (secret) and AI_MODEL (variable)
+# in your GitHub repository settings. Default provider is Anthropic Claude.
+# To use a different provider, adapt the API call below to match its format.
+api_key = os.environ.get("AI_API_KEY", "")
+model   = os.environ.get("AI_MODEL", "")
 
 if not api_key:
-    print("::error::ANTHROPIC_API_KEY secret not configured")
+    print("::error::AI_API_KEY secret not configured in repository secrets")
+    sys.exit(1)
+if not model:
+    print("::error::AI_MODEL variable not configured in repository variables")
     sys.exit(1)
 
 system = (
@@ -66,13 +74,9 @@ user = (
     "REQUEST CHANGES"
 )
 
-# Model ID: claude-sonnet-4-6 is the correct identifier for Claude Sonnet 4.6.
-# If the API rejects this, check console.anthropic.com for the current model list
-# and update the MODEL constant below.
-MODEL = "claude-sonnet-4-6"
 
 payload = {
-    "model": MODEL,
+    "model": model,
     "max_tokens": 1024,
     "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
     "messages": [{"role": "user", "content": user}],
@@ -92,11 +96,17 @@ req = urllib.request.Request(
 
 try:
     with urllib.request.urlopen(req) as resp:
-        data = json.load(resp)
-        review = data["content"][0]["text"]
+        data = json.loads(resp.read().decode("utf-8"))
+    content = data.get("content", [])
+    if not content or content[0].get("type") != "text":
+        print("::error::Unexpected API response structure")
+        sys.exit(1)
+    review = content[0]["text"]
 except urllib.error.HTTPError as e:
-    err_body = e.read().decode()
-    print(f"::error::Claude API error {e.code}: {err_body}")
+    print(f"::error::Claude API HTTP error {e.code}: {e.read().decode()}")
+    sys.exit(1)
+except urllib.error.URLError as e:
+    print(f"::error::Network error reaching Claude API: {e.reason}")
     sys.exit(1)
 
 delimiter = "CLAUDE_REVIEW_EOF"
