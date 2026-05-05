@@ -48,9 +48,17 @@ At session start, load the machine config:
 | Variable | Source field | Description |
 |---|---|---|
 | `$HOME_DIR` | `home` | Home directory |
-| `$PROJECTS` | `projects` | Local projects directory |
+| `$PROJECTS` | `project_root` (fall back to `projects` if absent — legacy field name) | Root directory for all projects |
+| `$SCREENSHOTS` | `screenshots_dir` | Folder where OS screenshots are saved — when the user says "screenshot", read the most recently modified file from here |
 
-Then load any additional knowledge directories defined under `knowledge_dirs`:
+Then load named project directories defined under `project_dirs`:
+
+```
+Each key in project_dirs becomes a variable: $KEY_NAME (uppercase)
+Example: "website": "/home/user/Projects/website" → $WEBSITE
+```
+
+Then load knowledge directories defined under `knowledge_dirs`:
 
 ```
 Each key in knowledge_dirs becomes a variable: $KEY_NAME (uppercase)
@@ -58,6 +66,53 @@ Example: "notes": "/home/user/notes" → $NOTES
 ```
 
 3. If `~/.claude/machine.json` does not exist, run the `setup` keyword before continuing.
+4. If `personal_config_dir` is set in machine.json, read `shared.json` from that directory if it exists. Cross-reference `shared.json`'s `project_dirs` and `knowledge_dirs` arrays with the keys in machine.json. If any canonical key from `shared.json` is missing from machine.json on this machine, note it silently — it simply means that resource is not available here, not that anything is wrong.
+
+---
+
+## Startup Checks
+
+After loading machine.json, run the following checks **silently**. Report only when something needs attention — these are non-blocking warnings, never errors that stop the session. If `git fetch` fails (no network, SSH issue, etc.), skip the check silently — never surface a fetch error to the user.
+
+### claude-dotfiles version check
+
+If `dotfiles_dir` is present in machine.json:
+
+```bash
+git -C <dotfiles_dir> fetch --quiet origin 2>/dev/null
+local_sha=$(git -C <dotfiles_dir> rev-parse HEAD 2>/dev/null)
+remote_sha=$(git -C <dotfiles_dir> rev-parse @{u} 2>/dev/null)
+```
+
+If `local_sha` and `remote_sha` differ (and `remote_sha` is non-empty), output one warning line:
+
+> ⚠️ claude-dotfiles has updates available. Run: `bash <dotfiles_dir>/scripts/update.sh`
+
+### Personal config repo sync check
+
+If `personal_config_dir` is present in machine.json:
+
+```bash
+git -C <personal_config_dir> fetch --quiet origin 2>/dev/null
+status=$(git -C <personal_config_dir> status -b --porcelain 2>/dev/null)
+```
+
+- If `status` contains `[behind`: warn "⚠️ Your personal config has unpulled changes. Run: `git -C <personal_config_dir> pull`"
+- If `status` contains `[ahead`: warn "⚠️ Your personal config has unpushed commits. Run: `git -C <personal_config_dir> push`"
+
+### Setup completion check
+
+If the Identity section below still contains placeholder text (e.g. `[Your Name]`, `[Your Role]`), check this by running:
+
+```bash
+grep -qF '[Your Name]' ~/.claude/CLAUDE.md 2>/dev/null
+```
+
+If the placeholder is found, tell the user their setup is not complete and offer to help:
+
+> *"Your claude-dotfiles setup isn't fully configured — the Identity section still has placeholder values. Would you like help setting up a private config repo to add your identity and personal commands?"*
+
+If the user says yes, guide them through creating a private GitHub repo, cloning it, copying and editing the CLAUDE.md template, and re-running setup.
 
 ---
 
@@ -97,6 +152,8 @@ Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels n
 4. Check: `ls ~/.claude/commands/commandname.md 2>/dev/null`
 5. If found: read the file and execute its instructions
 6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
+
+**Version check frequency:** The version and sync checks run once per session during the Startup Checks section above (which itself is gated by the once-per-day greeting). Do not run `git fetch` or SHA comparisons before individual commands — this adds latency to every invocation. If an update warning is needed mid-session, the user can run `--status` explicitly.
 
 ---
 

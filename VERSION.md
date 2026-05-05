@@ -6,6 +6,39 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ---
 
+## [Unreleased] — targeting v1.5.0
+
+### Added
+
+- **`scripts/uninstall.sh`** — removes all claude-dotfiles symlinks from `~/.claude/`, offers to restore a plain local `CLAUDE.md` (breaking the repo dependency cleanly), and offers to delete repos with explicit confirmation at each step. Supports **detach mode** (copy config to local file, keep repos) for air-gapped or secure environments.
+- **`scripts/update.sh`** rewritten — now non-interactive; pulls both the claude-dotfiles repo and the personal config repo; refreshes CLAUDE.md symlink and all command symlinks including stale link cleanup; does not prompt or modify machine.json/settings.json.
+- **`shared.json`** — canonical variable name list in the personal config repo. Defines which project and knowledge directories should exist across all machines. machine.json provides the local path mapping; shared.json is the portable master list. Schema updated; template updated with lowercase keys consistent with machine.json.
+- **Cross-machine variable design** — project and knowledge directories now have both a root (single parent) and named dirs (specific named paths). Canonical names live in `shared.json` (synced via personal config repo); local paths live in `machine.json` (per-machine). Machines can omit names they don't have locally without losing the canonical definition.
+- **Private config repo setup** — `setup.sh` now guides users through connecting or creating their personal private GitHub repo (required to complete setup). Detects the GitHub CLI (`gh`) and uses it for automated repo creation if available; falls back to step-by-step manual instructions if not.
+- **`scripts/status.sh`** — new CLI command that checks health and sync state across four areas: machine.json, CLAUDE.md symlink, claude-dotfiles version, and personal config repo sync. Exit code 0 = all clear; 1 = issues found. Supports `--quiet` for scripting/CI.
+- **`scripts/check-docs.sh`** — documentation quality gate. Verifies every script has `--help`, every script has a man page, man pages have all required sections, commands have title lines, and README has required sections. Run before every PR; enforced by CI.
+- **`--docscheck` command** — AI command that runs `check-docs.sh` and explains any failures.
+- **`--status` command** — AI command that runs `status.sh` and explains any issues.
+- **Man pages** — groff man pages for all scripts: `claude-dotfiles(1)`, `claude-dotfiles-setup(1)`, `claude-dotfiles-update(1)`, `claude-dotfiles-status(1)`, `claude-dotfiles-check-docs(1)`.
+- **`--help` / `-h`** — added to all scripts (`setup.sh`, `update.sh`, `status.sh`, `check-docs.sh`).
+- **`dotfiles_dir` in machine.json** — records the path to the claude-dotfiles repo on this machine. Written by `setup.sh`; used by `status.sh` and CLAUDE.md for version checks.
+- **`personal_config_dir` in machine.json** — records the path to the user's private config repo. Written by `setup.sh`. Setup is not considered complete without this.
+- **CLAUDE.md startup checks** — at session start, Claude now checks: (1) claude-dotfiles version vs remote, (2) personal config sync state, (3) whether the Identity section still has placeholder values. All checks are non-blocking warnings.
+- **CLAUDE.md command version warning** — before running any custom command, Claude warns if claude-dotfiles has updates available (non-blocking).
+- **GitHub Actions docs-check workflow** — `docs-check.yml` runs `check-docs.sh` on every push and PR against main, functional-test, and release branches.
+- **One-line install** in README — `curl -fsSL ... | bash` prominently documented in Quick Start.
+- **Documentation standards policy** — added to `CONTRIBUTORS.md`. All scripts, commands, and man pages must meet the documented standard before any PR.
+- **Schema updated** — `machine.schema.json` documents new fields: `dotfiles_dir`, `personal_config_dir`.
+
+### Changed
+
+- `machine.json.template` and `examples/machine.json.example` updated with new `dotfiles_dir` and `personal_config_dir` fields.
+- `setup.sh` — setup reports "partially complete" if the personal config repo was skipped; `status.sh` check recommended as next step.
+- README Quick Start — `curl` one-liner is now the primary install path; manual `git clone` still documented as alternative.
+- README — added CLI Reference table and man page section.
+
+---
+
 ## [1.4.0] — 2026-05-03
 
 ### Added
