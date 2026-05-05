@@ -3,7 +3,7 @@
 # Run once on a new machine to deploy your Claude Code configuration.
 # https://github.com/Spyced-Concepts/claude-dotfiles
 
-set -e
+set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLAUDE_DIR="$HOME/.claude"
@@ -244,6 +244,24 @@ else
   project_root="${project_root:-$HOME/Projects}"
 
   echo ""
+  echo "  ── Named projects ────────────────────────────────────────────────"
+  echo "  Optionally name specific projects so Claude can reference them"
+  echo "  directly (e.g. 'website' → \$WEBSITE, 'api' → \$API)."
+  echo "  Skip this if you prefer to just open Claude in the project folder."
+  echo ""
+  project_dirs_json=""
+  read -p "  Add named project directories? (y/n): " add_projects
+  while [ "$add_projects" = "y" ]; do
+    read -p "  Name (e.g. 'website'): " pname
+    read -p "  Path: " ppath
+    if [ -n "$pname" ] && [ -n "$ppath" ]; then
+      entry="\"$pname\": \"$ppath\""
+      project_dirs_json="${project_dirs_json:+$project_dirs_json, }$entry"
+    fi
+    read -p "  Add another? (y/n): " add_projects
+  done
+
+  echo ""
   echo "  ── Knowledge directories ─────────────────────────────────────────"
   echo "  Knowledge directories are where your thinking lives — notes, docs,"
   echo "  todos, tasks, plans, research, and reference material. Claude reads"
@@ -328,6 +346,9 @@ else
     $knowledge_dirs_json
   },
   "project_root": "$project_root",
+  "project_dirs": {
+    $project_dirs_json
+  },
   "dotfiles_dir": "$DOTFILES_DIR"
 }
 JSONEOF
@@ -370,13 +391,28 @@ if [ ! -f "$SETTINGS_JSON" ]; then
 else
   echo "✓ ~/.claude/settings.json exists."
   echo ""
-  echo "  Current allowlist entries:"
+  echo "  Allowlist entries let Claude run specific shell commands or make"
+  echo "  web requests without prompting you each time."
+  echo ""
+  echo "  Format:  ToolName(argument-pattern)"
+  echo "  Examples:"
+  echo "    Bash(date *)              — allow date/time commands"
+  echo "    Bash(git status)          — allow git status specifically"
+  echo "    Bash(git *)               — allow all git commands"
+  echo "    Bash(ls *)                — allow directory listing"
+  echo "    WebFetch(domain:wttr.in)  — allow weather lookups"
+  echo ""
+  echo "  Current entries:"
   python3 -c "
 import json
 try:
     c = json.load(open('$SETTINGS_JSON'))
-    for e in c.get('permissions', {}).get('allow', []):
-        print(f'    {e}')
+    entries = c.get('permissions', {}).get('allow', [])
+    if entries:
+        for e in entries:
+            print(f'    {e}')
+    else:
+        print('    (none)')
 except: print('    (could not read)')
 " 2>/dev/null
   echo ""
@@ -417,6 +453,15 @@ echo "  belong in YOUR OWN private GitHub repo — separate from this tool."
 echo "  It is what keeps your configuration in sync across all your machines."
 echo ""
 
+# Determine a cross-platform location for the personal config repo
+if [ -n "${XDG_DATA_HOME:-}" ]; then
+  _config_parent="$XDG_DATA_HOME"
+elif mkdir -p "$HOME/.local/share" 2>/dev/null; then
+  _config_parent="$HOME/.local/share"
+else
+  _config_parent="$HOME"
+fi
+
 # Check if already configured in machine.json
 PERSONAL_CONFIG_DIR=""
 if [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
@@ -448,8 +493,7 @@ else
       echo ""
       read -p "  Clone URL: " config_clone_url
       if [ -n "$config_clone_url" ]; then
-        PERSONAL_CONFIG_DIR="$HOME/.local/share/claude-config"
-        mkdir -p "$(dirname "$PERSONAL_CONFIG_DIR")"
+        PERSONAL_CONFIG_DIR="$_config_parent/claude-config"
         if git clone "$config_clone_url" "$PERSONAL_CONFIG_DIR" 2>/dev/null; then
           echo "  ✓ Cloned to $PERSONAL_CONFIG_DIR"
         else
@@ -466,15 +510,14 @@ else
         echo ""
         read -p "  Repo name [claude-config]: " repo_name
         repo_name="${repo_name:-claude-config}"
-        PERSONAL_CONFIG_DIR="$HOME/.local/share/$repo_name"
+        PERSONAL_CONFIG_DIR="$_config_parent/$repo_name"
 
         if [ -d "$PERSONAL_CONFIG_DIR/.git" ]; then
           echo "  ✓ $PERSONAL_CONFIG_DIR already exists — using it."
         else
-          mkdir -p "$HOME/.local/share"
           # gh repo create --clone puts the repo in the cwd
           _prev_dir="$PWD"
-          cd "$HOME/.local/share"
+          cd "$_config_parent"
           if gh repo create "$repo_name" --private \
               --description "Personal Claude Code configuration" \
               --clone 2>/dev/null; then
@@ -538,8 +581,7 @@ REEOF
         echo ""
         read -p "  Do you have a clone URL ready right now? (paste URL or Enter to skip): " config_clone_url
         if [ -n "$config_clone_url" ]; then
-          PERSONAL_CONFIG_DIR="$HOME/.local/share/claude-config"
-          mkdir -p "$(dirname "$PERSONAL_CONFIG_DIR")"
+          PERSONAL_CONFIG_DIR="$_config_parent/claude-config"
           if git clone "$config_clone_url" "$PERSONAL_CONFIG_DIR" 2>/dev/null; then
             echo "  ✓ Cloned to $PERSONAL_CONFIG_DIR"
           else

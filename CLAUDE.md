@@ -48,9 +48,16 @@ At session start, load the machine config:
 | Variable | Source field | Description |
 |---|---|---|
 | `$HOME_DIR` | `home` | Home directory |
-| `$PROJECTS` | `projects` | Local projects directory |
+| `$PROJECTS` | `project_root` | Root directory for all projects |
 
-Then load any additional knowledge directories defined under `knowledge_dirs`:
+Then load named project directories defined under `project_dirs`:
+
+```
+Each key in project_dirs becomes a variable: $KEY_NAME (uppercase)
+Example: "website": "/home/user/Projects/website" → $WEBSITE
+```
+
+Then load knowledge directories defined under `knowledge_dirs`:
 
 ```
 Each key in knowledge_dirs becomes a variable: $KEY_NAME (uppercase)

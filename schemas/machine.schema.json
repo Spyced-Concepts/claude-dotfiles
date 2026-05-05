@@ -36,6 +36,13 @@
         "type": "string"
       }
     },
+    "project_dirs": {
+      "type": "object",
+      "description": "Named individual project directories. Each key becomes an uppercase variable in Claude sessions (e.g. 'website' → $WEBSITE). Use alongside project_root to give Claude direct references to specific projects.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "command_prefix_enabled": {
       "type": "boolean",
       "description": "Enable custom command dispatch. When true, Claude watches for messages starting with command_prefix and dispatches them to ~/.claude/commands/. Disabled by default — opt in deliberately."
