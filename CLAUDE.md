@@ -48,7 +48,8 @@ At session start, load the machine config:
 | Variable | Source field | Description |
 |---|---|---|
 | `$HOME_DIR` | `home` | Home directory |
-| `$PROJECTS` | `project_root` | Root directory for all projects |
+| `$PROJECTS` | `project_root` (fall back to `projects` if absent — legacy field name) | Root directory for all projects |
+| `$SCREENSHOTS` | `screenshots_dir` | Folder where OS screenshots are saved — when the user says "screenshot", read the most recently modified file from here |
 
 Then load named project directories defined under `project_dirs`:
 
@@ -71,7 +72,7 @@ Example: "notes": "/home/user/notes" → $NOTES
 
 ## Startup Checks
 
-After loading machine.json, run the following checks **silently**. Report only when something needs attention — these are non-blocking warnings, never errors that stop the session.
+After loading machine.json, run the following checks **silently**. Report only when something needs attention — these are non-blocking warnings, never errors that stop the session. If `git fetch` fails (no network, SSH issue, etc.), skip the check silently — never surface a fetch error to the user.
 
 ### claude-dotfiles version check
 
@@ -152,16 +153,7 @@ Choose any prefix string — `--`, `!`, `>`, `cmd:`, `run:` — whatever feels n
 5. If found: read the file and execute its instructions
 6. If not found: tell the user the command was not found; suggest `{prefix}commands` (or just `commands` if no prefix) to list all available commands
 
-**Version warning (non-blocking):** Before running any command's instructions, check whether claude-dotfiles is behind remote. Use the `dotfiles_dir` from machine.json:
-
-```bash
-git -C <dotfiles_dir> rev-parse HEAD 2>/dev/null
-git -C <dotfiles_dir> rev-parse @{u} 2>/dev/null
-```
-
-If they differ, prepend a single warning to the command output — then continue with the command regardless:
-
-> ⚠️ claude-dotfiles has updates available. Run `bash <dotfiles_dir>/scripts/update.sh` when convenient.
+**Version check frequency:** The version and sync checks run once per session during the Startup Checks section above (which itself is gated by the once-per-day greeting). Do not run `git fetch` or SHA comparisons before individual commands — this adds latency to every invocation. If an update warning is needed mid-session, the user can run `--status` explicitly.
 
 ---
 

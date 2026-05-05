@@ -37,6 +37,8 @@ release/vX.X.X ─→ main                  PR #3 — monthly release cut
 
 **VERSION.md** is updated on the release branch — either incrementally as features land, or as a final commit before the PR to main. Never on a feature branch, never directly on main.
 
+> **Permitted exception:** Updating `VERSION.md` directly on a release branch (e.g. `release/v1.5.0`) without a PR is allowed — this is the one case where a direct commit to a protected branch is acceptable. Only `VERSION.md` may be updated this way. All other changes must go through a feature branch and PR.
+
 ### Branch naming
 
 | Branch type | Convention | Example |
@@ -191,6 +193,42 @@ release/vX.X.X       ─→  main             (PR #3, monthly)
 
 ---
 
+## Backward compatibility
+
+**We evolve. We don't break.**
+
+Existing users run `update.sh` and their setup continues to work — without re-running setup, without reading changelogs, without any intervention. This is a hard requirement, not a guideline.
+
+### The rule
+
+**A user who set up claude-dotfiles on day one must be able to run `update.sh` on any future version and have everything continue working correctly.**
+
+There are no exceptions. If a change cannot meet this bar, it does not ship.
+
+### How to evolve without breaking
+
+**New `machine.json` fields must be optional with safe defaults.** Scripts must never crash because a field is absent. Use `_read_json_field` which returns an empty string for missing keys — build all logic to handle empty gracefully.
+
+**New behaviour must be additive.** Add capabilities; do not remove or change existing ones. If existing behaviour needs to change, provide the new behaviour alongside the old and deprecate the old over multiple releases before removing it.
+
+**`update.sh` must always be safe.** It pulls and refreshes symlinks. It must work correctly regardless of which version the user is coming from — including versions that pre-date the current schema.
+
+**`setup.sh` re-runs must be safe.** Re-running setup on an existing install must preserve all existing config and only add or update what is new. It must never reset, overwrite, or delete anything the user has configured.
+
+### When adding a new `machine.json` field
+
+1. Give it a safe empty-string default in all scripts — missing field = feature disabled, not crash
+2. Add it to `machine.schema.json` with a clear description
+3. Add it to `machine.json.template` and `examples/machine.json.example`
+4. Document it in `VERSION.md` under the relevant release
+5. Ensure a re-run of `setup.sh` populates it gracefully on existing machines
+
+### What a breaking change looks like — and why it is rejected
+
+A breaking change is anything that causes `update.sh` to produce a worse result than before: error on startup, lost config, broken symlinks, commands that stop working, or behaviour that changes without the user opting in. **These are not shipped.** If a proposed change would break existing installs, it must be redesigned until it does not.
+
+---
+
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org):
@@ -200,42 +238,6 @@ This project follows [Semantic Versioning](https://semver.org):
 | **PATCH** (x.y.**z**) | Bug fixes, docs corrections, small tweaks | v1.2.1 |
 | **MINOR** (x.**y**.0) | New features — monthly release cycle | v1.3.0 |
 | **MAJOR** (**x**.0.0) | Large new features, significant changes | v2.0.0 |
-
-## Backward compatibility
-
-Existing users run `update.sh` to get new versions. Their `machine.json`, `settings.json`, and `~/.claude/CLAUDE.md` must not break silently when new features are added.
-
-### Rules
-
-**No silent breakage.** If a change could break an existing install, it must be detected and handled gracefully — either by providing sensible defaults, or by guiding the user through what changed.
-
-**New `machine.json` fields must be optional.** Any new field added to `machine.json` must have a safe default if absent. Scripts must not crash because a field is missing — use `_read_json_field` which already returns empty string on missing keys.
-
-**Behavioural changes must be announced.** If `update.sh` would change how CLAUDE.md is symlinked, how commands are loaded, or any other behaviour the user has come to rely on, document it prominently in `VERSION.md` and in the upgrade notes for that release.
-
-**`update.sh` must be safe to run at any time.** It should pull, refresh symlinks, and exit cleanly regardless of the machine's current state — even if `machine.json` is missing fields from a newer schema version.
-
-### When adding a new `machine.json` field
-
-1. Give it a safe empty-string default in all scripts that read it
-2. Add it to `machine.schema.json` with a clear description
-3. Add it to `machine.json.template` and `examples/machine.json.example`
-4. Note it in `VERSION.md` under the relevant release
-5. Add a migration note if `setup.sh --reconfigure` would be needed to populate it
-
-### Breaking changes
-
-Mark breaking changes clearly in `VERSION.md`:
-
-```
-### ⚠️ BREAKING CHANGE
-setup.sh now requires re-running on existing installs to populate
-the new `personal_config_dir` field. Run: bash scripts/setup.sh
-```
-
-Breaking changes require a MINOR version bump at minimum. Changes that corrupt existing config without warning require a MAJOR bump.
-
----
 
 ## Release process
 

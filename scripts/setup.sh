@@ -205,6 +205,11 @@ c["name"] = name
 c["os"] = os_
 c["home"] = home
 if proj: c["project_root"] = proj
+# Migrate legacy 'projects' field to 'project_root' for existing installs
+if "projects" in c and "project_root" not in c:
+    c["project_root"] = c.pop("projects")
+elif "projects" in c:
+    del c["projects"]
 if kr: c["knowledge_root"] = kr
 elif "knowledge_root" in c and not kr:
     pass  # keep existing if user left blank

@@ -51,6 +51,10 @@
       "type": "string",
       "description": "The prefix that triggers a custom command. Any string except / (which the Claude Code CLI intercepts). Examples: --, !, >, cmd:, run:. Set to empty string \"\" for no prefix — command names are used directly (e.g. 'daily'). Only used when command_prefix_enabled is true."
     },
+    "screenshots_dir": {
+      "type": "string",
+      "description": "Absolute path to the folder where OS screenshots are saved on this machine. Becomes $SCREENSHOTS in Claude sessions. When Stu says 'screenshot', Claude reads the most recently modified file from this folder."
+    },
     "dotfiles_dir": {
       "type": "string",
       "description": "Absolute path to the claude-dotfiles repo on this machine. Set automatically by setup.sh. Used by status.sh and CLAUDE.md to locate scripts and check for updates."

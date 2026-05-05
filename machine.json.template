@@ -13,6 +13,7 @@
   },
   "command_prefix_enabled": false,
   "command_prefix": "--",
+  "screenshots_dir": "/path/to/screenshots/folder",
   "dotfiles_dir": "/path/to/claude-dotfiles",
   "personal_config_dir": "/path/to/your/private/claude-config"
 }
