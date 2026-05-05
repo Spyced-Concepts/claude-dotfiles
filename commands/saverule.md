@@ -9,7 +9,7 @@ Help the user place a rule, instruction, or convention in the right location bas
 | Tier | Keyword | Scope | Where it lives |
 |---|---|---|---|
 | Folder rule | `folder` | One vault or knowledge folder only | `CLAUDE.md` inside that folder |
-| Local Global rule | `local` | This machine only, never synced | Machine-local config (not committed anywhere) |
+| Local Global rule *(coming soon)* | `local` | This machine only, never synced | Not yet implemented — planned for a future release |
 | Synced Global rule | `global` | All sessions on all machines | Your **synced-rules** repo `CLAUDE.md` (private config repo — `claude-config` by default) |
 | Project rule | `project` | Current code project only | `AGENTS.md` + `.claude/CLAUDE.md` in this repo |
 
@@ -41,7 +41,7 @@ Show the taxonomy table and exit without writing anything.
 2. Ask: **"Who or what should this apply to?"** and offer the four options:
    ```
    1. folder   — one specific vault or folder
-   2. local    — this machine only (not synced)
+   2. local    — this machine only (not synced) *(coming soon — not yet available)*
    3. global   — all machines, always (synced via personal config)
    4. project  — this code project only
    ```
@@ -49,7 +49,7 @@ Show the taxonomy table and exit without writing anything.
 
 3. If `folder`: ask which folder. Read the relevant `CLAUDE.md` and append the rule in an appropriate section.
 
-4. If `local`: explain that Local Global rules need a machine-local config file not yet in the framework, and offer to add it to `machine.json` as a note field, or suggest adding it to a local-only section of the personal CLAUDE.md.
+4. If `local`: tell the user this tier is not yet implemented and suggest they use `global` (synced-rules) as a temporary home, or defer until Local Global support is available in a future release. Do not write anything.
 
 5. If `global`: read `personal_config_dir` from `~/.claude/machine.json`. Open the personal config `CLAUDE.md` and append the rule under an appropriate existing section, or create a new one if no section fits.
 
@@ -99,7 +99,7 @@ Before writing any rule to `AGENTS.md` or `.claude/CLAUDE.md`, check:
 - No security or risk information (credentials, vulnerability details, security posture)
 - No business-sensitive content
 
-If the rule contains any of the above, redirect it to `global` (personal config) or `local` tier instead and explain why.
+If the rule contains any of the above, redirect it to `global` (synced-rules) tier instead and explain why. Do not suggest `local` as a destination — it is not yet implemented.
 
 ---
 *Customise this command for your setup by editing `~/.claude/commands/saverule.md`*
