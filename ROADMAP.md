@@ -162,6 +162,8 @@ This feature makes that migration active:
 
 - **Shell completions** — bash, zsh, fish completions for `setup.sh` flags
 
+- **UAT test runner** *(DevOps/QA)* — a script that runs all non-interactive UAT tests, pipes known inputs to interactive tests, and captures all output to a timestamped log file that can be consumed by an AI without copy-paste. Hands-on terminal testing is retained — testers can still run tests manually and see the full experience. The runner is for output capture, not for replacing the human in the loop.
+
 - **Community command gallery** — curated `/commands` contributions from the community
 
 - **Multi-profile support** — switch between different CLAUDE.md profiles per project type (e.g., a "security review" profile vs a "writing" profile)
