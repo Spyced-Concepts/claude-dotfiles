@@ -407,18 +407,19 @@ else
   echo "    WebFetch(domain:wttr.in)  — allow weather lookups"
   echo ""
   echo "  Current entries:"
-  python3 -c "
-import json
+  python3 - "$SETTINGS_JSON" << 'PYEOF'
+import json, sys
 try:
-    c = json.load(open('$SETTINGS_JSON'))
+    c = json.load(open(sys.argv[1]))
     entries = c.get('permissions', {}).get('allow', [])
     if entries:
         for e in entries:
             print(f'    {e}')
     else:
         print('    (none)')
-except: print('    (could not read)')
-" 2>/dev/null
+except:
+    print('    (could not read)')
+PYEOF
   echo ""
   read -p "  Add a new allowlist entry? (paste entry or press Enter to skip): " new_entry
   while [ -n "$new_entry" ]; do
@@ -539,8 +540,53 @@ else
             && [ ! -f "$PERSONAL_CONFIG_DIR/CLAUDE.md" ]; then
           mkdir -p "$PERSONAL_CONFIG_DIR/commands"
 
-          # Scaffold CLAUDE.md from the public template
-          cp "$DOTFILES_DIR/CLAUDE.md" "$PERSONAL_CONFIG_DIR/CLAUDE.md"
+          # Scaffold a personal CLAUDE.md that loads the framework then adds personal content
+          cat > "$PERSONAL_CONFIG_DIR/CLAUDE.md" << MDEOF
+# Personal Claude Code Configuration
+
+## Framework
+
+At the very start of each session, before reading the sections below, load the
+claude-dotfiles framework instructions by running:
+
+\`\`\`bash
+cat "\$(python3 -c "import json,os; c=json.load(open(os.path.expanduser('~/.claude/machine.json'))); print(c.get('dotfiles_dir',''))" 2>/dev/null)/CLAUDE.md"
+\`\`\`
+
+This loads the machine configuration, session greeting, command dispatch, startup
+checks, and all framework defaults. The sections below extend and personalise them.
+Framework instructions apply first; personal sections below take precedence.
+
+---
+
+## Identity
+
+- **Name:** [Your Name]
+- **Role:** [Your Role]
+- **Location:** [Your Location]
+
+---
+
+## Knowledge Directories
+
+Knowledge directories for this machine are defined in \`~/.claude/machine.json\`
+and loaded at session start. Add instructions for reading your specific directories
+below this line.
+
+---
+
+## Personal Keywords
+
+<!-- Add personal trigger words here, e.g.:
+- **work** — open the work todo list
+-->
+
+---
+
+## Behaviour Overrides
+
+<!-- Override or extend any framework defaults here -->
+MDEOF
 
           cat > "$PERSONAL_CONFIG_DIR/.gitignore" << 'GIEOF'
 *.local
@@ -688,10 +734,19 @@ echo "  Next steps:"
 echo "  1. Review ~/.claude/machine.json — edit paths if needed"
 echo "  2. Review ~/.claude/settings.json — add any tool permissions"
 echo "  3. Open Claude Code in any directory"
-if [ "$setup_commands" = "y" ] && [ -n "$chosen_prefix" ]; then
-  echo "  4. Try a command: type ${chosen_prefix}commands to list all available commands"
-elif [ "$setup_commands" = "y" ]; then
-  echo "  4. Enable commands: set command_prefix_enabled: true in ~/.claude/machine.json"
+if [ "$setup_commands" = "y" ]; then
+  # Determine the active prefix — prefer what was set this session, else read machine.json
+  _active_prefix="$chosen_prefix"
+  if [ -z "$_active_prefix" ] && [ -f "$MACHINE_JSON" ]; then
+    _prefix_enabled=$(_read_json_field "$MACHINE_JSON" "command_prefix_enabled")
+    _saved_prefix=$(_read_json_field "$MACHINE_JSON" "command_prefix")
+    [ "$_prefix_enabled" = "True" ] && _active_prefix="$_saved_prefix"
+  fi
+  if [ -n "$_active_prefix" ]; then
+    echo "  4. Try a command: type ${_active_prefix}commands to list all available commands"
+  else
+    echo "  4. Enable commands: set command_prefix_enabled: true in ~/.claude/machine.json"
+  fi
 fi
 echo ""
 echo "  Check status at any time:"
