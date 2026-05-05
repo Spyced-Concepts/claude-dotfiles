@@ -2,32 +2,56 @@
 .\" To view: man ./man/man1/claude-dotfiles-update.1
 .TH CLAUDE\-DOTFILES\-UPDATE 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
 .SH NAME
-claude\-dotfiles\-update \- pull the latest claude-dotfiles and redeploy symlinks
+claude\-dotfiles\-update \- pull the latest claude-dotfiles and personal config, then redeploy symlinks
 .SH SYNOPSIS
 .B bash
 .I <dotfiles\-dir>/scripts/update.sh
 .RI [ OPTIONS ]
 .SH DESCRIPTION
-Pulls the latest changes from the remote claude-dotfiles repository and
-re-runs \fBsetup.sh\fR to ensure all symlinks and config files are current.
-Safe to re-run at any time.
+Non-interactive update script. Pulls the latest changes from the
+claude-dotfiles remote and from your personal config repo, then
+redeploys all symlinks without prompting. Safe to run at any time.
 .PP
-The update does \fInot\fR update your personal config repo. Manage that repo
-separately with \fBgit pull\fR.
+Does \fBnot\fR modify \fImachine.json\fR or \fIsettings.json\fR. Run
+\fBsetup.sh\fR to make configuration changes interactively.
+.PP
+Personal commands added to your private config repo are automatically
+symlinked into \fI~/.claude/commands/\fR after the pull. Personal
+commands override public built-ins of the same name.
 .SH OPTIONS
 .TP
 .BR \-h ", " \-\-help
 Show usage summary and exit.
+.SH STEPS
+.IP "1." 4
+\fBgit pull\fR in the claude-dotfiles repo.
+.IP "2." 4
+\fBgit pull\fR in your personal config repo (if \fBpersonal_config_dir\fR
+is set in \fImachine.json\fR).
+.IP "3." 4
+Refreshes the \fI~/.claude/CLAUDE.md\fR symlink — personal config CLAUDE.md
+if it exists, otherwise the public template.
+.IP "4." 4
+Refreshes all command symlinks in \fI~/.claude/commands/\fR:
+.RS 4
+.IP \(bu 2
+Removes stale symlinks whose source file no longer exists.
+.IP \(bu 2
+Re-links all public built-in commands from \fIcommands/\fR.
+.IP \(bu 2
+Re-links all personal commands from \fIpersonal_config_dir/commands/\fR,
+overriding public built-ins of the same name.
+.RE
 .SH EXIT STATUS
 .TP
 .B 0
 Update completed successfully.
 .TP
 .B 1
-git pull or setup failed.
+A git pull or symlink operation failed.
 .SH EXAMPLES
 .TP
-Update claude-dotfiles:
+Update claude-dotfiles and personal config:
 .B bash ~/.local/share/claude-dotfiles/scripts/update.sh
 .TP
 Using the alias added by install.sh:

@@ -65,6 +65,7 @@ Example: "notes": "/home/user/notes" → $NOTES
 ```
 
 3. If `~/.claude/machine.json` does not exist, run the `setup` keyword before continuing.
+4. If `personal_config_dir` is set in machine.json, read `shared.json` from that directory if it exists. Cross-reference `shared.json`'s `project_dirs` and `knowledge_dirs` arrays with the keys in machine.json. If any canonical key from `shared.json` is missing from machine.json on this machine, note it silently — it simply means that resource is not available here, not that anything is wrong.
 
 ---
 

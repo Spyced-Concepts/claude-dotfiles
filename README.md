@@ -138,13 +138,41 @@ claude-update
 
 ---
 
+## Uninstalling
+
+```bash
+bash ~/Projects/claude-dotfiles/scripts/uninstall.sh
+```
+
+Removes all symlinks from `~/.claude/` and offers to restore a plain local `CLAUDE.md`. You are asked before anything is deleted. The repos are not deleted unless you explicitly confirm each one.
+
+**Detach mode** — if you want a one-time snapshot of your config (useful for secure or air-gapped environments):
+
+```bash
+bash ~/Projects/claude-dotfiles/scripts/uninstall.sh
+# → Yes to restore plain CLAUDE.md
+# → No to removing machine.json and settings.json
+# → No to deleting repos
+```
+
+This gives you a standalone `~/.claude/CLAUDE.md` that is no longer linked to any repo. Your repos are still there if you want to reinstall later.
+
+**Reinstall at any time:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh | bash
+```
+
+---
+
 ## CLI reference
 
 | Script | Description |
 |---|---|
 | `scripts/setup.sh` | First-time setup on a new machine. Interactive. |
-| `scripts/update.sh` | Pull latest and redeploy symlinks. |
+| `scripts/update.sh` | Pull both repos and redeploy symlinks. Non-interactive. |
 | `scripts/status.sh` | Check health, version, and sync state. |
+| `scripts/uninstall.sh` | Remove symlinks; optionally delete repos. |
 | `install.sh` | One-line bootstrap: downloads and runs setup. |
 
 All scripts support `--help` / `-h`.

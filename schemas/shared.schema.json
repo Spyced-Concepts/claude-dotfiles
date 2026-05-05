@@ -9,14 +9,28 @@
   "properties": {
     "variables": {
       "type": "object",
-      "description": "Canonical variable names and what they represent. Keys are variable names used as $NAME in Claude sessions and must match keys in every machine's machine.json. Values are human-readable descriptions — not paths.",
+      "description": "Canonical variable names and what they represent. Keys match keys in machine.json knowledge_dirs and project_dirs (lowercase). Values are human-readable descriptions — not paths. Use this as the master list of what variables SHOULD exist across all machines.",
       "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "project_dirs": {
+      "type": "array",
+      "description": "Canonical list of named project directory keys that should exist across all machines. Each key should appear in machine.json project_dirs on machines where it is available.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "knowledge_dirs": {
+      "type": "array",
+      "description": "Canonical list of named knowledge directory keys that should exist across all machines. Each key should appear in machine.json knowledge_dirs on machines where it is available.",
+      "items": {
         "type": "string"
       }
     },
     "commands_enabled": {
       "type": "array",
-      "description": "Which built-in commands from the public repo to activate. Names match filenames in commands/ without the .md extension.",
+      "description": "Which commands to activate. Names match filenames in commands/ without the .md extension.",
       "items": {
         "type": "string"
       }
