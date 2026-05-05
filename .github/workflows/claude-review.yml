@@ -68,6 +68,6 @@ jobs:
             echo ""
             echo ""
             echo "---"
-            echo "*Automated review by Claude Sonnet. Maintainer approval required.*"
+            echo "*Automated AI code review. Maintainer approval required.*"
           } > "$RUNNER_TEMP/review_body.md"
           gh pr comment "${{ github.event.pull_request.number }}" --body-file "$RUNNER_TEMP/review_body.md"

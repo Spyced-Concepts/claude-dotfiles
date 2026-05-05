@@ -445,7 +445,7 @@ bash scripts/check-docs.sh
 ```
 
 **Then**
-- [ ] All 33 checks pass
+- [ ] All checks pass
 - [ ] Exit code is 0
 - [ ] Output is clear
 
@@ -570,7 +570,7 @@ Run this after any change to `scripts/` or `CLAUDE.md`. Tick each item before ra
 [ ] bash -n scripts/status.sh      — syntax OK
 [ ] bash -n scripts/uninstall.sh   — syntax OK
 [ ] bash -n scripts/check-docs.sh  — syntax OK
-[ ] bash scripts/check-docs.sh     — all 33 checks pass
+[ ] bash scripts/check-docs.sh     — all checks pass
 [ ] bash scripts/status.sh         — runs without crash
 [ ] bash scripts/setup.sh --help   — prints usage
 [ ] bash scripts/status.sh --quiet — exit code 0 or 1 (no output)
