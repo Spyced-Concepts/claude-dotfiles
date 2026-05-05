@@ -10,7 +10,7 @@ Help the user place a rule, instruction, or convention in the right location bas
 |---|---|---|---|
 | Folder rule | `folder` | One vault or knowledge folder only | `CLAUDE.md` inside that folder |
 | Local Global rule | `local` | This machine only, never synced | Machine-local config (not committed anywhere) |
-| Synced Global rule | `global` | All sessions on all machines | Personal config repo `CLAUDE.md` |
+| Synced Global rule | `global` | All sessions on all machines | Your **synced-rules** repo `CLAUDE.md` (private config repo — `claude-config` by default) |
 | Project rule | `project` | Current code project only | `AGENTS.md` + `.claude/CLAUDE.md` in this repo |
 
 ---
