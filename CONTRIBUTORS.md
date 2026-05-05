@@ -49,6 +49,29 @@ release/vX.X.X ─→ main                  PR #3 — monthly release cut
 If you're working on a tracked GitHub Issue, prefix with the issue number:
 `#12-feature/windows-symlink-support`
 
+### Keeping a feature branch in sync
+
+Merge conflicts arise when a base branch (`functional-test` or a release branch) accumulates commits that the feature branch doesn't have. The longer a feature branch lives, the greater the drift.
+
+**During a long feature cycle, regularly merge the base into the feature branch:**
+
+```bash
+git fetch origin
+git checkout feature/your-description
+git merge origin/functional-test   # or origin/release/vX.X.X
+# resolve any conflicts, then:
+git push
+```
+
+Do this at least once before opening either PR. Catching a 1-commit conflict is far cheaper than a 10-commit one.
+
+**The most common cause of unexpected divergence is a direct push bypassing branch protection.** Even a single admin-override commit to `functional-test` will cause a conflict the next time the feature branch tries to merge. This is why the admin override must be treated as a genuine last resort — not a shortcut. Every bypass creates merge debt.
+
+**Signals to sync immediately:**
+- GitHub shows "This branch has conflicts" on your PR
+- A teammate merges something to `functional-test` while your PR is open
+- You've been working on a feature branch for more than a few days
+
 ### Commit messages
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org):
@@ -135,6 +158,22 @@ failing docs checks will not be reviewed.
 Do not update `VERSION.md` on your feature branch — that happens on the release branch.
 
 PRs directly against `main` will not be accepted.
+
+### PR size guidelines
+
+PRs are reviewed manually. Large, wide-ranging PRs slow the whole pipeline — review takes longer, feedback is harder to act on, and merge conflicts are more likely. Keep PRs focused.
+
+| | Guideline |
+|---|---|
+| **Scope** | One concern per PR — one bug fix, one feature, one refactor. Mixed-concern PRs will be asked to split. |
+| **Files changed** | Aim for under 10 files. PRs touching more than 20 files will receive extra scrutiny. |
+| **Lines changed** | Aim for under 300 lines (excluding generated files, schemas, and test data). |
+| **Commits** | Squash noise commits before opening the PR. Each commit should be a coherent unit. |
+| **UAT reference** | Link the relevant UAT test case IDs (e.g. *"covers UAT-006, UAT-007"*) so reviewers know what to test. |
+
+**If your change is naturally large** (e.g. a new script that requires a man page, a command, and schema updates), that is fine — the size guideline is about avoiding unrelated changes being bundled together, not about penalising complete, coherent features.
+
+**For forked repos:** the same rules apply. A PR from a fork that touches multiple unrelated areas will be asked to split before review begins. This keeps review time predictable and feedback actionable.
 
 ---
 
