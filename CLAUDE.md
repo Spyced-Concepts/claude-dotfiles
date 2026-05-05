@@ -164,7 +164,7 @@ When you add a rule, instruction, or convention, it should live in exactly one p
 | Tier | Scope | Where it lives |
 |---|---|---|
 | **Folder rule** | One vault or knowledge folder only | `CLAUDE.md` inside that folder |
-| **Local Global rule** | All sessions on this machine, not synced | Machine-local config (not committed to any repo) |
+| **Local Global rule** *(coming soon)* | All sessions on this machine, not synced | Not yet implemented — planned for a future release |
 | **Synced Global rule** | All sessions on all machines | Your **synced-rules** repo `CLAUDE.md` (the private config repo — `claude-config` by default) |
 | **Project rule** | One specific code project | `AGENTS.md` + `.claude/CLAUDE.md` in that repo |
 
@@ -179,6 +179,8 @@ Type `--saverule` for interactive help placing a rule in the right location.
 Reserved words that trigger specific actions:
 
 - **setup** — Create or update `~/.claude/machine.json` and `~/.claude/settings.json` interactively. Read the current values first. Show each field with its current value in brackets — the user presses Enter to keep it or types a new value to replace it. After updating machine.json, show the current settings.json allowlist and offer to add new entries. Never require deleting files to reconfigure — always update in place. Write changes immediately and confirm what changed.
+
+- **saverule** (also `--saverule`) — Interactive help for placing a rule in the correct scope tier. Shows the taxonomy, asks where the rule belongs, and writes it to the right location. Supports multiple tiers in one command. Type `--saverule help` to list the taxonomy without writing anything.
 
 ---
 
