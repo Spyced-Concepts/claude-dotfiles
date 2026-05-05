@@ -307,7 +307,7 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
+| Windows (Git Bash) | ✅ | ******* | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
 | macOS | ⬜ | | | |
 | Linux | ⬜ | | | |
 
@@ -616,9 +616,9 @@ Summary of test pass rates by platform and release.
 When you complete a test, update the relevant row:
 
 ```
-| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passed on first run |
-| Windows (Git Bash) | ❌ | StuLast | 2026-05-05 | Fails — see issue #26 |
-| Windows (Git Bash) | ⚠️ | StuLast | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
+| Windows (Git Bash) | ✅ | ******* | 2026-05-05 | Passed on first run |
+| Windows (Git Bash) | ❌ | ******* | 2026-05-05 | Fails — see issue #26 |
+| Windows (Git Bash) | ⚠️ | ******* | 2026-05-05 | Passes but symlinks show as plain files (cosmetic) |
 ```
 
 Open a GitHub issue for any ❌ or ⚠️ result and link it in the Notes column.
