@@ -172,15 +172,51 @@ This feature makes that migration active:
 
 - **Homebrew formula** — `brew install claude-dotfiles` for macOS
 
-### Hosted config service *(commercial — future)*
+---
 
-A managed personal config service for users who don't want to maintain a private git repo. Your `shared.json`, custom commands, and CLAUDE.md overrides are stored securely and synced automatically across all your machines — no git required.
+## Paid services *(no release date — future commercial)*
 
-```bash
-atlink claude init --hosted   # coming in a future atlink release
-```
+The core claude-dotfiles tool is and will always remain free and open source. These paid services are planned for a future commercial tier — they add managed infrastructure and team-level features on top of the free self-hosted foundation.
 
-This is the natural commercial tier alongside the free self-hosted tool. More details when atlink reaches its commercial release.
+---
+
+### 💳 Hosted personal config
+
+A managed config service for users who don't want to maintain a private git repo. Your `shared.json`, custom commands, and personal `CLAUDE.md` are stored securely and synced automatically across all your machines — no git required.
+
+**Who it's for:** non-developers and anyone who wants cross-machine sync without managing a GitHub repo themselves.
+
+**What it replaces:** the private git repo step in the current setup flow. Everything else stays the same — `machine.json` remains local, the public tool remains free.
+
+**Integration point:** will be available via `setup.sh` as an alternative to the "connect your own repo" path, and via `atlink claude init --hosted` when atlink reaches its commercial release.
+
+---
+
+### 💳 Organisation-level configs, commands, and rules
+
+A shared config layer that sits above the individual personal config — allowing teams and organisations to define rules, commands, and CLAUDE.md sections that apply to every member automatically.
+
+**Who it's for:** development teams, agencies, and organisations who want consistent AI behaviour across all their developers without each person managing it manually.
+
+**What it enables:**
+
+| Capability | Description |
+|---|---|
+| **Org-wide rules** | Organisation-wide conventions (commit format, code style, security rules) pushed to every member's Claude sessions automatically |
+| **Group rules** | Department or team-level rules that apply to a subset of members — e.g. the security team gets stricter scanning rules; the marketing team gets brand voice guidelines; engineering gets repo-specific workflow rules |
+| **Shared commands** | Org or group commands (e.g. `--deploy`, `--review`, `--standup`) available to the right people without individual setup |
+| **Config inheritance** | Four-layer stack: public tool → org config → group config → personal config. Each layer can extend the one above; org security rules can be marked non-overridable. |
+| **Centralised management** | Admins manage org and group configs from a dashboard or CLI; changes propagate to all relevant members on next session start |
+| **Audit trail** | Every config change is versioned and attributable — who changed what rule, when, and why |
+
+**Group config use cases:**
+
+- Engineering team gets code review and branch workflow rules
+- Security team gets stricter scanning and incident response commands
+- Marketing team gets brand voice, British English enforcement, and content guidelines
+- Contractors get a read-only limited command set with no access to internal rules
+
+**Pricing model:** per-organisation workspace (not per-seat) — consistent with Spyced Concepts' SME-first pricing philosophy. Group config is included in the org tier; no additional charge per group.
 
 ---
 
