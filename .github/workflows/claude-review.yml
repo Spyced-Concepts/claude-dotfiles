@@ -47,7 +47,16 @@ jobs:
         run: |
           NOTE=""
           if [ "${DIFF_LINES:-0}" -ge 1500 ]; then
-            NOTE="> Diff was large - review based on first 1500 lines only."$'\n\n'
+            NOTE="> Diff was large - review based on first 1500 lines only."
           fi
-          BODY="## Claude Code Review"$'\n\n'"${NOTE}${REVIEW}"$'\n\n'"---"$'\n'"*Automated review by Claude Sonnet. Maintainer approval required.*"
-          gh pr comment "${{ github.event.pull_request.number }}" --body "$BODY"
+          {
+            echo "## Claude Code Review"
+            echo ""
+            [ -n "$NOTE" ] && printf '%s\n\n' "$NOTE"
+            printf '%s' "$REVIEW"
+            echo ""
+            echo ""
+            echo "---"
+            echo "*Automated review by Claude Sonnet. Maintainer approval required.*"
+          } > "$RUNNER_TEMP/review_body.md"
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file "$RUNNER_TEMP/review_body.md"
