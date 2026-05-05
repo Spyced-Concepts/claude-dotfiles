@@ -276,7 +276,7 @@ The `## Machine Configuration` section works without modification — it reads y
 **Windows symlink display quirk:** On Windows (Git Bash), symlinks created by `setup.sh` function correctly but are reported as regular files by `ls -la` and `readlink`. This means:
 - `status.sh` shows `~/.claude/CLAUDE.md (regular file)` rather than `→ /path/to/target`
 - `readlink ~/.claude/CLAUDE.md` returns nothing
-- The symlinks **do work** — content is served from the correct target file
+- The symlinks **do work** — content is read from the correct target file
 
 This is a known Git Bash / Windows NTFS behaviour, not a bug. Verify a symlink is working by comparing file content rather than relying on `readlink`.
 

@@ -239,6 +239,42 @@ This project follows [Semantic Versioning](https://semver.org):
 | **MINOR** (x.**y**.0) | New features — monthly release cycle | v1.3.0 |
 | **MAJOR** (**x**.0.0) | Large new features, significant changes | v2.0.0 |
 
+## Backward compatibility
+
+Existing users run `update.sh` to get new versions. Their `machine.json`, `settings.json`, and `~/.claude/CLAUDE.md` must not break silently when new features are added.
+
+### Rules
+
+**No silent breakage.** If a change could break an existing install, it must be detected and handled gracefully — either by providing sensible defaults, or by guiding the user through what changed.
+
+**New `machine.json` fields must be optional.** Any new field added to `machine.json` must have a safe default if absent. Scripts must not crash because a field is missing — use `_read_json_field` which already returns empty string on missing keys.
+
+**Behavioural changes must be announced.** If `update.sh` would change how CLAUDE.md is symlinked, how commands are loaded, or any other behaviour the user has come to rely on, document it prominently in `VERSION.md` and in the upgrade notes for that release.
+
+**`update.sh` must be safe to run at any time.** It should pull, refresh symlinks, and exit cleanly regardless of the machine's current state — even if `machine.json` is missing fields from a newer schema version.
+
+### When adding a new `machine.json` field
+
+1. Give it a safe empty-string default in all scripts that read it
+2. Add it to `machine.schema.json` with a clear description
+3. Add it to `machine.json.template` and `examples/machine.json.example`
+4. Note it in `VERSION.md` under the relevant release
+5. Add a migration note if `setup.sh --reconfigure` would be needed to populate it
+
+### Breaking changes
+
+Mark breaking changes clearly in `VERSION.md`:
+
+```
+### ⚠️ BREAKING CHANGE
+setup.sh now requires re-running on existing installs to populate
+the new `personal_config_dir` field. Run: bash scripts/setup.sh
+```
+
+Breaking changes require a MINOR version bump at minimum. Changes that corrupt existing config without warning require a MAJOR bump.
+
+---
+
 ## Release process
 
 Releases are managed by [Spyced Concepts Ltd.](https://spycedconcepts.co.uk) on a monthly cycle:

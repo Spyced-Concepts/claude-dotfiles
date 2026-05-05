@@ -307,7 +307,7 @@ bash scripts/status.sh
 
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
-| Windows (Git Bash) | ⬜ | | | |
+| Windows (Git Bash) | ✅ | StuLast | 2026-05-05 | Passes. CLAUDE.md shown as `(regular file)` not symlink — known Windows display quirk, functionally correct. See README OS compatibility. |
 | macOS | ⬜ | | | |
 | Linux | ⬜ | | | |
 
