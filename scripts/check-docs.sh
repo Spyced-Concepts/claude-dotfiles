@@ -174,6 +174,7 @@ hdr "5. README.md — required sections"
 
 README="$DOTFILES_DIR/README.md"
 REQUIRED_README_SECTIONS=("## What it does" "## Quick start" "## CLI reference" "## File structure" "## machine.json structure" "## OS compatibility" "## Contributing" "## Licence")
+REQUIRED_UAT_SECTIONS=("## How to use this document" "## Test environment requirements" "## Test cases" "## Regression checklist" "## Platform compatibility matrix")
 
 for section in "${REQUIRED_README_SECTIONS[@]}"; do
   if grep -q "^${section}" "$README" 2>/dev/null; then
@@ -182,6 +183,24 @@ for section in "${REQUIRED_README_SECTIONS[@]}"; do
     fail "$section  — missing from README.md"
   fi
 done
+
+# ── 6. UAT.md: required sections ─────────────────────────────────────────────
+
+_out ""
+hdr "6. UAT.md — required sections"
+
+UAT="$DOTFILES_DIR/UAT.md"
+if [ ! -f "$UAT" ]; then
+  fail "UAT.md not found — acceptance test suite is required"
+else
+  for section in "${REQUIRED_UAT_SECTIONS[@]}"; do
+    if grep -q "^${section}" "$UAT" 2>/dev/null; then
+      ok "$section"
+    else
+      fail "$section  — missing from UAT.md"
+    fi
+  done
+fi
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
