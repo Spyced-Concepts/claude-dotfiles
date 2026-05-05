@@ -793,6 +793,13 @@ bash scripts/setup.sh
 - [ ] `[Project Name]` placeholder is resolved — not left as a literal string
 - [ ] Files are written only after confirmation
 
+**Additional scenario — ambiguous project name:**
+
+Run the same command in a directory where the git remote URL is absent or ambiguous and the directory name is also ambiguous (e.g. a temp directory).
+
+- [ ] Claude asks the user to confirm the project name rather than guessing
+- [ ] `[Project Name]` is never written literally to any file
+
 | Platform | Status | Tester | Date | Notes |
 |---|---|---|---|---|
 | Windows (Git Bash) | ⬜ | | | |
@@ -823,7 +830,7 @@ bash scripts/setup.sh
 
 ---
 
-### UAT-030 — saverule: local tier blocked with coming-soon message
+### UAT-030 — saverule: Local Global rule tier blocked with coming-soon message
 
 **Feature:** `--saverule` command  
 **Priority:** P2 High
@@ -843,16 +850,17 @@ bash scripts/setup.sh
 
 ---
 
-### UAT-031 — saverule: safety redirect for sensitive content
+### UAT-031 — saverule: safety prompt for sensitive content
 
 **Feature:** `--saverule` command  
-**Priority:** P1 Critical
+**Priority:** P1 Critical  
+**Note:** This check is LLM-judgment-based, not pattern-matched. It cannot reliably detect all sensitive content. The test verifies that the prompt fires for obvious cases — it does not guarantee detection of all personal or security-sensitive content. Treat passes as "fires when expected" not "guaranteed to catch everything."
 
 **When** the user attempts to save a rule containing personal information or security-sensitive content to the `project` tier (e.g. `--saverule project "my API key is abc123"`)
 
 **Then**
-- [ ] The safety check fires before any write
-- [ ] User is told why this cannot go in a project file
+- [ ] The safety prompt fires before any write
+- [ ] User is told why this content should not go in a project file
 - [ ] User is redirected to `global` (synced-rules) tier instead
 - [ ] Nothing is written to `AGENTS.md` or `.claude/CLAUDE.md`
 
@@ -917,8 +925,8 @@ Summary of test pass rates by platform and release.
 | UAT-027 | saverule: write to folder tier | ⬜ | ⬜ | ⬜ |
 | UAT-028 | saverule: write to project tier | ⬜ | ⬜ | ⬜ |
 | UAT-029 | saverule: multi-tier write | ⬜ | ⬜ | ⬜ |
-| UAT-030 | saverule: local tier coming-soon message | ⬜ | ⬜ | ⬜ |
-| UAT-031 | saverule: safety redirect for sensitive content | ⬜ | ⬜ | ⬜ |
+| UAT-030 | saverule: Local Global rule tier coming-soon message | ⬜ | ⬜ | ⬜ |
+| UAT-031 | saverule: safety prompt for sensitive content | ⬜ | ⬜ | ⬜ |
 
 **Notes:**
 ¹ UAT-001 tested the existing-repo-URL path only — not a truly clean machine. Full new-machine path requires a machine with no prior claude-dotfiles install.
