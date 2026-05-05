@@ -73,26 +73,22 @@ if [ ! -d "$CLAUDE_DIR" ]; then
 fi
 
 # ── CLAUDE.md symlink ────────────────────────────────────────────────────────
+#
+# Always symlink ~/.claude/CLAUDE.md — no prompts. If a plain file exists,
+# back it up first so no content is lost. The personal config section later
+# in this script will upgrade the symlink to point to the personal CLAUDE.md
+# (which loads the framework dynamically), so the framework is always the
+# correct initial target.
 
 CLAUDE_MD_TARGET="$CLAUDE_DIR/CLAUDE.md"
 CLAUDE_MD_SOURCE="$DOTFILES_DIR/CLAUDE.md"
 
-if [ -L "$CLAUDE_MD_TARGET" ]; then
-  echo "✓ ~/.claude/CLAUDE.md symlink exists — updating ..."
-  ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-elif [ -f "$CLAUDE_MD_TARGET" ]; then
-  echo "⚠️  ~/.claude/CLAUDE.md exists as a regular file."
-  read -p "   Replace with symlink? (y/n): " replace
-  if [ "$replace" = "y" ]; then
-    cp "$CLAUDE_MD_TARGET" "$CLAUDE_MD_TARGET.backup"
-    echo "   Backed up to ~/.claude/CLAUDE.md.backup"
-    ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-    echo "✓ Symlink created."
-  fi
-else
-  ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-  echo "✓ ~/.claude/CLAUDE.md symlinked."
+if [ -f "$CLAUDE_MD_TARGET" ] && [ ! -L "$CLAUDE_MD_TARGET" ]; then
+  cp "$CLAUDE_MD_TARGET" "$CLAUDE_MD_TARGET.backup"
+  echo "✓ Existing ~/.claude/CLAUDE.md backed up to ~/.claude/CLAUDE.md.backup"
 fi
+ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
+echo "✓ ~/.claude/CLAUDE.md → framework (personal config will override below if connected)"
 
 # ── Commands ─────────────────────────────────────────────────────────────────
 
@@ -654,32 +650,13 @@ fi
 # Wire up personal config if we have a dir
 if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR" ]; then
 
-  # Prefer private CLAUDE.md over the public template — but protect any
-  # existing plain file that may contain machine-specific settings
+  # Always upgrade the symlink to the personal CLAUDE.md — it loads the
+  # framework dynamically via cat, so no content is lost and framework
+  # updates are picked up automatically. The backup from the CLAUDE.md
+  # section above already preserved any previous plain file.
   if [ -f "$PERSONAL_CONFIG_DIR/CLAUDE.md" ]; then
-    if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ ! -L "$CLAUDE_DIR/CLAUDE.md" ]; then
-      echo ""
-      echo "  ⚠️  ~/.claude/CLAUDE.md is a plain file with existing content."
-      echo "     Your personal config repo also has a CLAUDE.md."
-      echo "     Replacing it will switch to the repo version."
-      echo "     A backup will be saved to ~/.claude/CLAUDE.md.backup"
-      echo ""
-      read -p "  Replace with personal config CLAUDE.md? (y/n): " replace_claude_md
-      if [ "$replace_claude_md" = "y" ]; then
-        cp "$CLAUDE_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md.backup"
-        echo "  ✓ Backed up to ~/.claude/CLAUDE.md.backup"
-        ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
-        echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md"
-      else
-        echo "  Keeping existing ~/.claude/CLAUDE.md"
-        echo "  Review both files and merge any differences manually:"
-        echo "    Current:  ~/.claude/CLAUDE.md"
-        echo "    Repo:     $PERSONAL_CONFIG_DIR/CLAUDE.md"
-      fi
-    else
-      ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
-      echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md"
-    fi
+    ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+    echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md (loads framework automatically)"
   fi
 
   # Symlink personal commands — these override public built-ins of the same name
