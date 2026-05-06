@@ -5,6 +5,7 @@ Reads the PR diff, calls the Claude API, writes the review to GITHUB_OUTPUT.
 import json
 import os
 import sys
+import time
 import urllib.request
 import urllib.error
 
@@ -82,31 +83,54 @@ payload = {
     "messages": [{"role": "user", "content": user}],
 }
 
-req = urllib.request.Request(
-    "https://api.anthropic.com/v1/messages",
-    data=json.dumps(payload).encode(),
-    headers={
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01",
-        "anthropic-beta": "prompt-caching-2024-07-31",
-        "content-type": "application/json",
-    },
-    method="POST",
-)
+RETRYABLE_CODES = {529}
+MAX_ATTEMPTS    = 4
+BACKOFF_SECONDS = [5, 15, 30]
 
-try:
-    with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    content = data.get("content", [])
-    if not content or content[0].get("type") != "text":
-        print("::error::Unexpected API response structure")
-        sys.exit(1)
-    review = content[0]["text"]
-except urllib.error.HTTPError as e:
-    print(f"::error::Claude API HTTP error {e.code}: {e.read().decode()}")
-    sys.exit(1)
-except urllib.error.URLError as e:
-    print(f"::error::Network error reaching Claude API: {e.reason}")
+encoded_payload = json.dumps(payload).encode()
+api_headers = {
+    "x-api-key": api_key,
+    "anthropic-version": "2023-06-01",
+    "anthropic-beta": "prompt-caching-2024-07-31",
+    "content-type": "application/json",
+}
+
+review = None
+for attempt in range(1, MAX_ATTEMPTS + 1):
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=encoded_payload,
+        headers=api_headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        content = data.get("content", [])
+        if not content or content[0].get("type") != "text":
+            print("::error::Unexpected API response structure")
+            sys.exit(1)
+        review = content[0]["text"]
+        break
+    except urllib.error.HTTPError as e:
+        if e.code in RETRYABLE_CODES and attempt < MAX_ATTEMPTS:
+            delay = BACKOFF_SECONDS[attempt - 1]
+            print(f"API overloaded (529) — retrying in {delay}s (attempt {attempt}/{MAX_ATTEMPTS})")
+            time.sleep(delay)
+        else:
+            print(f"::error::Claude API HTTP error {e.code}: {e.read().decode()}")
+            sys.exit(1)
+    except urllib.error.URLError as e:
+        if attempt < MAX_ATTEMPTS:
+            delay = BACKOFF_SECONDS[attempt - 1]
+            print(f"Network error — retrying in {delay}s (attempt {attempt}/{MAX_ATTEMPTS}): {e.reason}")
+            time.sleep(delay)
+        else:
+            print(f"::error::Network error reaching Claude API: {e.reason}")
+            sys.exit(1)
+
+if review is None:
+    print("::error::All retry attempts exhausted without a successful response")
     sys.exit(1)
 
 delimiter = "CLAUDE_REVIEW_EOF"
