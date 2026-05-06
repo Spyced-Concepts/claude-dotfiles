@@ -1,0 +1,103 @@
+.\" Man page for claude-dotfiles
+.\" To view: man ./man/man1/claude-dotfiles.1
+.TH CLAUDE\-DOTFILES 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles \- personal configuration framework for Claude Code
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/setup.sh
+.RI [ OPTIONS ]
+.br
+.B bash
+.I <dotfiles\-dir>/scripts/update.sh
+.RI [ OPTIONS ]
+.br
+.B bash
+.I <dotfiles\-dir>/scripts/status.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+\fBclaude\-dotfiles\fR is a tool-agnostic personal configuration framework for
+Claude Code (Anthropic's AI CLI). It keeps your \fBCLAUDE.md\fR global
+configuration in a version-controlled git repository and deploys it to the
+correct location on each machine via symlinks.
+.PP
+Configuration is split into two repos:
+.IP "Public tool"
+\fISpyced\-Concepts/claude\-dotfiles\fR — the framework scripts, built-in commands,
+templates, and schemas. Clone this; do not fork it.
+.IP "Personal config (required)"
+\fIyourname/claude\-config\fR — your private GitHub repo containing your
+identity, custom commands, and personal \fBCLAUDE.md\fR. Created interactively
+by \fBsetup.sh\fR. Must be a private repo.
+.PP
+Machine-specific paths (\fB~/.claude/machine.json\fR) stay local and are never
+committed anywhere.
+.SH SCRIPTS
+.TP
+.B scripts/setup.sh
+One-time setup on a new machine. Interactive — guides you through all
+configuration including connecting your personal config repo.
+.TP
+.B scripts/update.sh
+Pull the latest claude-dotfiles and redeploy symlinks. Safe to re-run.
+.TP
+.B scripts/status.sh
+Check health and sync state: machine.json, CLAUDE.md symlink, claude-dotfiles
+version, personal config repo sync. Exits 1 if any checks fail.
+.SH FILES
+.TP
+.I ~/.claude/CLAUDE.md
+Symlink → your personal config repo's CLAUDE.md (or the public template if
+no personal repo is connected). Loaded by Claude Code in every session.
+.TP
+.I ~/.claude/machine.json
+Machine-specific paths. Never committed. See \fBmachine.json\fR(5) for schema.
+.TP
+.I ~/.claude/settings.json
+Claude Code permissions allowlist. Copied from template on first setup.
+.TP
+.I ~/.claude/commands/
+Directory of custom command files. Each \fI.md\fR file is a command Claude
+executes when invoked via the configured prefix (e.g. \fB--daily\fR).
+.SH OPTIONS
+Each script accepts its own options. The common option across all scripts is:
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.PP
+See the individual man pages for script-specific options:
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-status (1),
+.BR claude-dotfiles-update (1),
+.BR claude-dotfiles-check-docs (1).
+.SH EXAMPLES
+.TP
+First-time setup on a new machine:
+.B bash ~/Projects/claude-dotfiles/scripts/setup.sh
+.TP
+Check if anything needs attention:
+.B bash ~/Projects/claude-dotfiles/scripts/status.sh
+.TP
+Pull latest updates:
+.B bash ~/Projects/claude-dotfiles/scripts/update.sh
+.TP
+One-line install (downloads and runs setup):
+.B curl -fsSL https://raw.githubusercontent.com/Spyced-Concepts/claude-dotfiles/main/install.sh | bash
+.SH EXIT STATUS
+All scripts exit 0 on success and 1 on error or when issues are found.
+.B status.sh
+exits 1 if any check fails, making it suitable for scripting.
+.SH ENVIRONMENT
+.TP
+.B HOME
+Used to locate \fI~/.claude/\fR. Must be set.
+.SH SEE ALSO
+.BR claude-dotfiles-setup (1),
+.BR claude-dotfiles-update (1),
+.BR claude-dotfiles-status (1)
+.PP
+Full documentation: https://github.com/Spyced-Concepts/claude-dotfiles
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>
+.SH LICENSE
+MIT — see LICENSE file in the source repository.

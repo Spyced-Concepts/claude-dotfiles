@@ -3,10 +3,43 @@
 # Run once on a new machine to deploy your Claude Code configuration.
 # https://github.com/Spyced-Concepts/claude-dotfiles
 
-set -e
+set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLAUDE_DIR="$HOME/.claude"
+
+# ── Help ──────────────────────────────────────────────────────────────────────
+
+usage() {
+  cat <<EOF
+
+Usage: bash $(basename "$0") [OPTIONS]
+
+Run guided first-time setup of claude-dotfiles on this machine.
+
+Options:
+  -h, --help   Show this help message and exit
+
+What this does:
+  1. Symlinks CLAUDE.md to ~/.claude/CLAUDE.md
+  2. Sets up built-in commands in ~/.claude/commands/
+  3. Creates or updates ~/.claude/machine.json
+  4. Creates or updates ~/.claude/settings.json
+  5. Connects your personal private config repo (optional)
+
+Re-running is safe — existing config is preserved and updated in place.
+
+Man page: man claude-dotfiles-setup
+More info: https://github.com/Spyced-Concepts/claude-dotfiles
+EOF
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown option: $arg"; usage; exit 1 ;;
+  esac
+done
 
 echo ""
 echo "claude-dotfiles setup"
@@ -22,6 +55,17 @@ if ! command -v claude &> /dev/null; then
   exit 1
 fi
 
+# Detect GitHub CLI — optional; enables automated repo creation
+GH_AVAILABLE=false
+if command -v gh &>/dev/null; then
+  GH_AVAILABLE=true
+  echo "✓ GitHub CLI (gh) found — automated repo setup available"
+fi
+
+# Initialise variables that may remain unset if the user skips sections
+chosen_prefix=""
+setup_commands="n"
+
 # Create ~/.claude if needed
 if [ ! -d "$CLAUDE_DIR" ]; then
   echo "Creating ~/.claude ..."
@@ -29,26 +73,22 @@ if [ ! -d "$CLAUDE_DIR" ]; then
 fi
 
 # ── CLAUDE.md symlink ────────────────────────────────────────────────────────
+#
+# Always symlink ~/.claude/CLAUDE.md — no prompts. If a plain file exists,
+# back it up first so no content is lost. The personal config section later
+# in this script will upgrade the symlink to point to the personal CLAUDE.md
+# (which loads the framework dynamically), so the framework is always the
+# correct initial target.
 
 CLAUDE_MD_TARGET="$CLAUDE_DIR/CLAUDE.md"
 CLAUDE_MD_SOURCE="$DOTFILES_DIR/CLAUDE.md"
 
-if [ -L "$CLAUDE_MD_TARGET" ]; then
-  echo "✓ ~/.claude/CLAUDE.md symlink exists — updating ..."
-  ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-elif [ -f "$CLAUDE_MD_TARGET" ]; then
-  echo "⚠️  ~/.claude/CLAUDE.md exists as a regular file."
-  read -p "   Replace with symlink? (y/n): " replace
-  if [ "$replace" = "y" ]; then
-    cp "$CLAUDE_MD_TARGET" "$CLAUDE_MD_TARGET.backup"
-    echo "   Backed up to ~/.claude/CLAUDE.md.backup"
-    ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-    echo "✓ Symlink created."
-  fi
-else
-  ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
-  echo "✓ ~/.claude/CLAUDE.md symlinked."
+if [ -f "$CLAUDE_MD_TARGET" ] && [ ! -L "$CLAUDE_MD_TARGET" ]; then
+  cp "$CLAUDE_MD_TARGET" "$CLAUDE_MD_TARGET.backup"
+  echo "✓ Existing ~/.claude/CLAUDE.md backed up to ~/.claude/CLAUDE.md.backup"
 fi
+ln -sf "$CLAUDE_MD_SOURCE" "$CLAUDE_MD_TARGET"
+echo "✓ ~/.claude/CLAUDE.md → framework (personal config will override below if connected)"
 
 # ── Commands ─────────────────────────────────────────────────────────────────
 
@@ -156,18 +196,24 @@ if [ -f "$MACHINE_JSON" ]; then
   knowledge_root="${knowledge_root:-${cur_kr}}"
 
   # Preserve existing knowledge_dirs; update top-level scalar fields only
-  python3 - "$MACHINE_JSON" "$machine_name" "$machine_os" "$machine_home" "$project_root" "$knowledge_root" << 'PYEOF'
+  python3 - "$MACHINE_JSON" "$machine_name" "$machine_os" "$machine_home" "$project_root" "$knowledge_root" "$DOTFILES_DIR" << 'PYEOF'
 import json, sys
-path, name, os_, home, proj, kr = sys.argv[1:7]
+path, name, os_, home, proj, kr, dotfiles = sys.argv[1:8]
 with open(path) as f:
     c = json.load(f)
 c["name"] = name
 c["os"] = os_
 c["home"] = home
 if proj: c["project_root"] = proj
+# Migrate legacy 'projects' field to 'project_root' for existing installs
+if "projects" in c and "project_root" not in c:
+    c["project_root"] = c.pop("projects")
+elif "projects" in c:
+    del c["projects"]
 if kr: c["knowledge_root"] = kr
 elif "knowledge_root" in c and not kr:
     pass  # keep existing if user left blank
+if dotfiles: c["dotfiles_dir"] = dotfiles
 with open(path, "w") as f:
     json.dump(c, f, indent=2)
     f.write("\n")
@@ -201,6 +247,24 @@ else
   echo ""
   read -p "  Projects folder [$HOME/Projects]: " project_root
   project_root="${project_root:-$HOME/Projects}"
+
+  echo ""
+  echo "  ── Named projects ────────────────────────────────────────────────"
+  echo "  Optionally name specific projects so Claude can reference them"
+  echo "  directly (e.g. 'website' → \$WEBSITE, 'api' → \$API)."
+  echo "  Skip this if you prefer to just open Claude in the project folder."
+  echo ""
+  project_dirs_json=""
+  read -p "  Add named project directories? (y/n): " add_projects
+  while [ "$add_projects" = "y" ]; do
+    read -p "  Name (e.g. 'website'): " pname
+    read -p "  Path: " ppath
+    if [ -n "$pname" ] && [ -n "$ppath" ]; then
+      entry="\"$pname\": \"$ppath\""
+      project_dirs_json="${project_dirs_json:+$project_dirs_json, }$entry"
+    fi
+    read -p "  Add another? (y/n): " add_projects
+  done
 
   echo ""
   echo "  ── Knowledge directories ─────────────────────────────────────────"
@@ -286,7 +350,11 @@ else
   "knowledge_dirs": {
     $knowledge_dirs_json
   },
-  "project_root": "$project_root"
+  "project_root": "$project_root",
+  "project_dirs": {
+    $project_dirs_json
+  },
+  "dotfiles_dir": "$DOTFILES_DIR"
 }
 JSONEOF
 
@@ -328,15 +396,31 @@ if [ ! -f "$SETTINGS_JSON" ]; then
 else
   echo "✓ ~/.claude/settings.json exists."
   echo ""
-  echo "  Current allowlist entries:"
-  python3 -c "
-import json
+  echo "  Allowlist entries let Claude run specific shell commands or make"
+  echo "  web requests without prompting you each time."
+  echo ""
+  echo "  Format:  ToolName(argument-pattern)"
+  echo "  Examples:"
+  echo "    Bash(date *)              — allow date/time commands"
+  echo "    Bash(git status)          — allow git status specifically"
+  echo "    Bash(git *)               — allow all git commands"
+  echo "    Bash(ls *)                — allow directory listing"
+  echo "    WebFetch(domain:wttr.in)  — allow weather lookups"
+  echo ""
+  echo "  Current entries:"
+  python3 - "$SETTINGS_JSON" << 'PYEOF'
+import json, sys
 try:
-    c = json.load(open('$SETTINGS_JSON'))
-    for e in c.get('permissions', {}).get('allow', []):
-        print(f'    {e}')
-except: print('    (could not read)')
-" 2>/dev/null
+    c = json.load(open(sys.argv[1]))
+    entries = c.get('permissions', {}).get('allow', [])
+    if entries:
+        for e in entries:
+            print(f'    {e}')
+    else:
+        print('    (none)')
+except:
+    print('    (could not read)')
+PYEOF
   echo ""
   read -p "  Add a new allowlist entry? (paste entry or press Enter to skip): " new_entry
   while [ -n "$new_entry" ]; do
@@ -357,20 +441,296 @@ PYEOF
   done
 fi
 
+# ── Personal config repo ─────────────────────────────────────────────────────
+#
+# Your private config repo holds YOUR content: your identity, personal commands,
+# and any customisations to CLAUDE.md. It is completely separate from this
+# public tool — clone claude-dotfiles cleanly; keep your own config in your own
+# private repo.
+#
+# Why a separate repo? Forks of claude-dotfiles invite accidental PRs of personal
+# data into the public repo. Keeping them separate is the right architecture.
+
+echo ""
+echo "── Personal config repo ───────────────────────────────────────────────"
+echo ""
+echo "  Your identity, custom commands, and personal Claude Code instructions"
+echo "  belong in YOUR OWN private GitHub repo — separate from this tool."
+echo "  It is what keeps your configuration in sync across all your machines."
+echo ""
+
+# Determine a cross-platform location for the personal config repo
+if [ -n "${XDG_DATA_HOME:-}" ]; then
+  _config_parent="$XDG_DATA_HOME"
+elif mkdir -p "$HOME/.local/share" 2>/dev/null; then
+  _config_parent="$HOME/.local/share"
+else
+  _config_parent="$HOME"
+fi
+
+# Check if already configured in machine.json
+PERSONAL_CONFIG_DIR=""
+if [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
+  PERSONAL_CONFIG_DIR=$(python3 -c "
+import json, sys
+try:
+    c = json.load(open(sys.argv[1]))
+    print(c.get('personal_config_dir', ''))
+except: print('')
+" "$MACHINE_JSON" 2>/dev/null)
+fi
+
+if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR/.git" ]; then
+  echo "  ✓ Personal config already linked: $PERSONAL_CONFIG_DIR"
+  echo "    Pulling latest changes ..."
+  git -C "$PERSONAL_CONFIG_DIR" pull --quiet 2>/dev/null \
+    && echo "    ✓ Up to date" \
+    || echo "    ⚠️  Could not pull — check manually"
+else
+  read -p "  Have you already set up a personal config repo? (y/n/s to skip): " has_config_repo
+
+  case "$has_config_repo" in
+
+    y|Y)
+      echo ""
+      echo "  Paste the clone URL for your private repo."
+      echo "  SSH example:   git@github.com:you/claude-config.git"
+      echo "  HTTPS example: https://github.com/you/claude-config.git"
+      echo ""
+      read -p "  Clone URL: " config_clone_url
+      if [ -n "$config_clone_url" ]; then
+        PERSONAL_CONFIG_DIR="$_config_parent/claude-config"
+        if git clone "$config_clone_url" "$PERSONAL_CONFIG_DIR" 2>/dev/null; then
+          echo "  ✓ Cloned to $PERSONAL_CONFIG_DIR"
+        else
+          echo "  ⚠️  Clone failed. Check the URL and try again."
+          PERSONAL_CONFIG_DIR=""
+        fi
+      fi
+      ;;
+
+    n|N)
+      echo ""
+      if $GH_AVAILABLE; then
+        echo "  The GitHub CLI is installed — we can create your private repo now."
+        echo ""
+        read -p "  Repo name [claude-config]: " repo_name
+        repo_name="${repo_name:-claude-config}"
+        PERSONAL_CONFIG_DIR="$_config_parent/$repo_name"
+
+        if [ -d "$PERSONAL_CONFIG_DIR/.git" ]; then
+          echo "  ✓ $PERSONAL_CONFIG_DIR already exists — using it."
+        else
+          # gh repo create --clone puts the repo in the cwd
+          _prev_dir="$PWD"
+          cd "$_config_parent"
+          if gh repo create "$repo_name" --private \
+              --description "Personal Claude Code configuration" \
+              --clone 2>/dev/null; then
+            echo "  ✓ Created and cloned: $PERSONAL_CONFIG_DIR"
+          else
+            echo "  ⚠️  Could not create repo. Try running: gh auth login"
+            echo "     Then re-run setup."
+            PERSONAL_CONFIG_DIR=""
+          fi
+          cd "$_prev_dir"
+        fi
+
+        # Scaffold initial files if the repo is empty
+        if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR" ] \
+            && [ ! -f "$PERSONAL_CONFIG_DIR/CLAUDE.md" ]; then
+          mkdir -p "$PERSONAL_CONFIG_DIR/commands"
+
+          # Scaffold a personal CLAUDE.md that loads the framework then adds personal content
+          cat > "$PERSONAL_CONFIG_DIR/CLAUDE.md" << MDEOF
+# Personal Claude Code Configuration
+
+## Framework
+
+At the very start of each session, before reading the sections below, load the
+claude-dotfiles framework instructions by running:
+
+\`\`\`bash
+cat "\$(python3 -c "import json,os; c=json.load(open(os.path.expanduser('~/.claude/machine.json'))); print(c.get('dotfiles_dir',''))" 2>/dev/null)/CLAUDE.md"
+\`\`\`
+
+This loads the machine configuration, session greeting, command dispatch, startup
+checks, and all framework defaults. The sections below extend and personalise them.
+Framework instructions apply first; personal sections below take precedence.
+
+---
+
+## Identity
+
+- **Name:** [Your Name]
+- **Role:** [Your Role]
+- **Location:** [Your Location]
+
+---
+
+## Knowledge Directories
+
+Knowledge directories for this machine are defined in \`~/.claude/machine.json\`
+and loaded at session start. Add instructions for reading your specific directories
+below this line.
+
+---
+
+## Personal Keywords
+
+<!-- Add personal trigger words here, e.g.:
+- **work** — open the work todo list
+-->
+
+---
+
+## Behaviour Overrides
+
+<!-- Override or extend any framework defaults here -->
+MDEOF
+
+          cat > "$PERSONAL_CONFIG_DIR/.gitignore" << 'GIEOF'
+*.local
+GIEOF
+
+          cat > "$PERSONAL_CONFIG_DIR/README.md" << 'REEOF'
+# Personal Claude Code Config
+
+My private Claude Code configuration — built on [claude-dotfiles](https://github.com/Spyced-Concepts/claude-dotfiles).
+
+Contains my personal CLAUDE.md, custom commands, and configuration.
+REEOF
+
+          cd "$PERSONAL_CONFIG_DIR"
+          git add .
+          git commit -m "Initial personal config scaffold" --quiet
+          git push --quiet
+          cd "$_prev_dir"
+          echo "  ✓ Scaffolded CLAUDE.md template, commands/, and pushed initial commit"
+          echo ""
+          echo "  ⚠️  IMPORTANT: Edit your CLAUDE.md to fill in your real identity."
+          echo "     Open: $PERSONAL_CONFIG_DIR/CLAUDE.md"
+          echo "     Replace [Your Name], [Your Role], [Your Location] with your details."
+        fi
+      else
+        # No gh CLI — show manual options
+        echo "  The GitHub CLI (gh) is not installed. Here are your options:"
+        echo ""
+        echo "  ┌─ Option A: Install gh, then re-run setup (recommended) ──────────"
+        echo "  │  Install from: https://cli.github.com/"
+        echo "  │  After installing: bash $DOTFILES_DIR/scripts/setup.sh"
+        echo "  │"
+        echo "  ├─ Option B: Create the repo on GitHub, then connect it ───────────"
+        echo "  │  1. Go to: https://github.com/new"
+        echo "  │  2. Name it 'claude-config', set it to PRIVATE, click Create"
+        echo "  │  3. Copy the clone URL (SSH or HTTPS)"
+        echo "  │  4. Re-run setup — you'll be prompted to paste the URL"
+        echo "  │"
+        echo "  └─ Option C: Skip for now ─────────────────────────────────────────"
+        echo "     Open Claude Code and type: setup"
+        echo "     Claude will walk you through creating your private config."
+        echo ""
+        read -p "  Do you have a clone URL ready right now? (paste URL or Enter to skip): " config_clone_url
+        if [ -n "$config_clone_url" ]; then
+          PERSONAL_CONFIG_DIR="$_config_parent/claude-config"
+          if git clone "$config_clone_url" "$PERSONAL_CONFIG_DIR" 2>/dev/null; then
+            echo "  ✓ Cloned to $PERSONAL_CONFIG_DIR"
+          else
+            echo "  ⚠️  Clone failed. Check the URL and try again."
+            PERSONAL_CONFIG_DIR=""
+          fi
+        fi
+      fi
+      ;;
+
+    *)
+      echo "  Skipping. To set this up later:"
+      echo "  - Open Claude Code and type: setup"
+      echo "  - Claude will walk you through it interactively."
+      ;;
+
+  esac
+fi
+
+# Wire up personal config if we have a dir
+if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR" ]; then
+
+  # Always upgrade the symlink to the personal CLAUDE.md — it loads the
+  # framework dynamically via cat, so no content is lost and framework
+  # updates are picked up automatically. The backup from the CLAUDE.md
+  # section above already preserved any previous plain file.
+  if [ -f "$PERSONAL_CONFIG_DIR/CLAUDE.md" ]; then
+    ln -sf "$PERSONAL_CONFIG_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+    echo "  ✓ ~/.claude/CLAUDE.md → your personal CLAUDE.md (loads framework automatically)"
+  fi
+
+  # Symlink personal commands — these override public built-ins of the same name
+  if [ -d "$PERSONAL_CONFIG_DIR/commands" ]; then
+    COMMANDS_DIR_P="$CLAUDE_DIR/commands"
+    mkdir -p "$COMMANDS_DIR_P"
+    linked_personal=0
+    for cmd in "$PERSONAL_CONFIG_DIR/commands/"*.md; do
+      [ -f "$cmd" ] || continue
+      ln -sf "$cmd" "$COMMANDS_DIR_P/$(basename "$cmd")"
+      linked_personal=$((linked_personal + 1))
+    done
+    [ $linked_personal -gt 0 ] \
+      && echo "  ✓ $linked_personal personal command(s) linked (override built-ins)"
+  fi
+
+  # Save personal_config_dir to machine.json
+  if [ -f "$MACHINE_JSON" ] && command -v python3 &>/dev/null; then
+    python3 - "$MACHINE_JSON" "$PERSONAL_CONFIG_DIR" << 'PYEOF'
+import json, sys
+path, d = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    c = json.load(f)
+c["personal_config_dir"] = d
+with open(path, "w") as f:
+    json.dump(c, f, indent=2)
+    f.write("\n")
+PYEOF
+    echo "  ✓ Saved personal_config_dir to machine.json"
+  fi
+fi
+
 # ── Done ─────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "════════════════════════════════════════"
-echo "  Setup complete."
+if [ -n "$PERSONAL_CONFIG_DIR" ] && [ -d "$PERSONAL_CONFIG_DIR" ]; then
+  echo "  Setup complete."
+else
+  echo "  Setup partially complete."
+  echo ""
+  echo "  ⚠️  Your personal config repo is not connected."
+  echo "     Setup is complete when your identity, custom commands,"
+  echo "     and CLAUDE.md are in a private GitHub repo linked here."
+  echo ""
+  echo "     Re-run setup at any time to connect it:"
+  echo "       bash $DOTFILES_DIR/scripts/setup.sh"
+fi
 echo "════════════════════════════════════════"
 echo ""
 echo "  Next steps:"
 echo "  1. Review ~/.claude/machine.json — edit paths if needed"
 echo "  2. Review ~/.claude/settings.json — add any tool permissions"
 echo "  3. Open Claude Code in any directory"
-if [ "$setup_commands" = "y" ] && [ -n "$chosen_prefix" ]; then
-  echo "  4. Try a command: type ${chosen_prefix}commands to list all available commands"
-elif [ "$setup_commands" = "y" ]; then
-  echo "  4. Enable commands: set command_prefix_enabled: true in ~/.claude/machine.json"
+if [ "$setup_commands" = "y" ]; then
+  # Determine the active prefix — prefer what was set this session, else read machine.json
+  _active_prefix="$chosen_prefix"
+  if [ -z "$_active_prefix" ] && [ -f "$MACHINE_JSON" ]; then
+    _prefix_enabled=$(_read_json_field "$MACHINE_JSON" "command_prefix_enabled")
+    _saved_prefix=$(_read_json_field "$MACHINE_JSON" "command_prefix")
+    [ "$_prefix_enabled" = "True" ] && _active_prefix="$_saved_prefix"
+  fi
+  if [ -n "$_active_prefix" ]; then
+    echo "  4. Try a command: type ${_active_prefix}commands to list all available commands"
+  else
+    echo "  4. Enable commands: set command_prefix_enabled: true in ~/.claude/machine.json"
+  fi
 fi
+echo ""
+echo "  Check status at any time:"
+echo "    bash $DOTFILES_DIR/scripts/status.sh"
 echo ""

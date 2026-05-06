@@ -1,0 +1,78 @@
+name: AI PR Review
+
+# Automated AI code review on every PR targeting functional-test or release
+# branches. Posts a structured review comment.
+#
+# Required repository configuration:
+#   Secrets:   AI_API_KEY  — your AI provider API key
+#   Variables: AI_MODEL    — model identifier (e.g. claude-sonnet-4-6)
+#
+# Default provider: Anthropic Claude. To use a different provider, adapt
+# .github/scripts/claude_review.py to match that provider's API format.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - functional-test
+      - "release/**"
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Capture PR diff
+        id: diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr diff ${{ github.event.pull_request.number }} \
+            | head -n 1500 > "$RUNNER_TEMP/pr_diff.txt" || true
+          LINES=$(wc -l < "$RUNNER_TEMP/pr_diff.txt")
+          if [ "${LINES:-0}" -eq 0 ]; then
+            echo "::error::Diff is empty — gh pr diff may have failed or PR has no changes"
+            exit 1
+          fi
+          echo "lines=$LINES" >> "$GITHUB_OUTPUT"
+          echo "Captured $LINES lines"
+
+      - name: Run Claude review
+        id: review
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 .github/scripts/claude_review.py
+
+      - name: Post review comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW: ${{ steps.review.outputs.review }}
+          DIFF_LINES: ${{ steps.diff.outputs.lines }}
+        run: |
+          NOTE=""
+          if [ "${DIFF_LINES:-0}" -ge 1500 ]; then
+            NOTE="> Diff was large - review based on first 1500 lines only."
+          fi
+          {
+            echo "## Claude Code Review"
+            echo ""
+            [ -n "$NOTE" ] && printf '%s\n\n' "$NOTE"
+            printf '%s' "$REVIEW"
+            echo ""
+            echo ""
+            echo "---"
+            echo "*Automated AI code review. Maintainer approval required.*"
+          } > "$RUNNER_TEMP/review_body.md"
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file "$RUNNER_TEMP/review_body.md"
