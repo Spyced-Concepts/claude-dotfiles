@@ -1,0 +1,84 @@
+.\" Man page for claude-dotfiles setup.sh
+.\" To view: man ./man/man1/claude-dotfiles-setup.1
+.TH CLAUDE\-DOTFILES\-SETUP 1 "May 2026" "claude-dotfiles 1.5.0" "Claude Code Tools"
+.SH NAME
+claude\-dotfiles\-setup \- guided first-time setup of claude-dotfiles on a machine
+.SH SYNOPSIS
+.B bash
+.I <dotfiles\-dir>/scripts/setup.sh
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Interactive setup script. Run once on any new machine to deploy your Claude Code
+configuration. Safe to re-run — existing configuration is preserved and updated
+in place.
+.PP
+Setup is not considered complete until a personal private config repo is
+connected. This repo holds your identity (name, role, location), custom commands,
+and personal CLAUDE.md overrides.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage summary and exit.
+.SH STEPS
+.IP "1." 4
+Checks Claude Code CLI is installed.
+.IP "2." 4
+Detects whether the GitHub CLI (\fBgh\fR) is available. If present, the script
+can create and scaffold your personal config repo automatically.
+.IP "3." 4
+Creates \fI~/.claude/\fR if it does not exist.
+.IP "4." 4
+Symlinks \fBCLAUDE.md\fR to \fI~/.claude/CLAUDE.md\fR.
+.IP "5." 4
+Installs built-in commands into \fI~/.claude/commands/\fR (optional).
+.IP "6." 4
+Creates or updates \fI~/.claude/machine.json\fR. Records \fBdotfiles_dir\fR
+(path to this repo) so status checks can locate it.
+.IP "7." 4
+Creates or updates \fI~/.claude/settings.json\fR from template.
+.IP "8." 4
+Connects your personal config repo. Options:
+.RS 4
+.IP \(bu 2
+You already have one — paste the clone URL.
+.IP \(bu 2
+\fBgh\fR installed — create it automatically.
+.IP \(bu 2
+No \fBgh\fR — step-by-step manual instructions, then paste URL.
+.IP \(bu 2
+Skip for now — re-run setup later.
+.RE
+.IP "9." 4
+Records \fBpersonal_config_dir\fR in machine.json; symlinks personal commands;
+updates the CLAUDE.md symlink to point to your personal CLAUDE.md.
+.SH EXIT STATUS
+.TP
+.B 0
+Setup completed (fully or partially).
+.TP
+.B 1
+A required dependency was missing (e.g. Claude Code CLI not found).
+.SH EXAMPLES
+.TP
+First-time setup:
+.B bash ~/Projects/claude-dotfiles/scripts/setup.sh
+.TP
+Re-run after installing gh to connect your personal config repo:
+.B bash ~/Projects/claude-dotfiles/scripts/setup.sh
+.SH FILES
+.TP
+.I ~/.claude/machine.json
+Created or updated. Contains: name, os, home, project_root, knowledge_dirs,
+dotfiles_dir, personal_config_dir, command_prefix_enabled, command_prefix.
+.TP
+.I ~/.claude/settings.json
+Created from template if not present.
+.TP
+.I ~/.claude/commands/
+Populated with symlinks to public built-in commands and personal commands.
+.SH SEE ALSO
+.BR claude-dotfiles (1),
+.BR claude-dotfiles-status (1),
+.BR claude-dotfiles-update (1)
+.SH AUTHOR
+Spyced Concepts Ltd. <https://spycedconcepts.co.uk>

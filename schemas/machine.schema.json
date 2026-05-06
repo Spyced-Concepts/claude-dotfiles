@@ -36,6 +36,13 @@
         "type": "string"
       }
     },
+    "project_dirs": {
+      "type": "object",
+      "description": "Named individual project directories. Each key becomes an uppercase variable in Claude sessions (e.g. 'website' → $WEBSITE). Use alongside project_root to give Claude direct references to specific projects.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "command_prefix_enabled": {
       "type": "boolean",
       "description": "Enable custom command dispatch. When true, Claude watches for messages starting with command_prefix and dispatches them to ~/.claude/commands/. Disabled by default — opt in deliberately."
@@ -43,6 +50,18 @@
     "command_prefix": {
       "type": "string",
       "description": "The prefix that triggers a custom command. Any string except / (which the Claude Code CLI intercepts). Examples: --, !, >, cmd:, run:. Set to empty string \"\" for no prefix — command names are used directly (e.g. 'daily'). Only used when command_prefix_enabled is true."
+    },
+    "screenshots_dir": {
+      "type": "string",
+      "description": "Absolute path to the folder where OS screenshots are saved on this machine. Becomes $SCREENSHOTS in Claude sessions. When Stu says 'screenshot', Claude reads the most recently modified file from this folder."
+    },
+    "dotfiles_dir": {
+      "type": "string",
+      "description": "Absolute path to the claude-dotfiles repo on this machine. Set automatically by setup.sh. Used by status.sh and CLAUDE.md to locate scripts and check for updates."
+    },
+    "personal_config_dir": {
+      "type": "string",
+      "description": "Absolute path to your personal private config repo on this machine. Set by setup.sh when you connect or create your private config repo. Contains your personal CLAUDE.md, custom commands, and shared config. Setup is not complete without this."
     }
   }
 }

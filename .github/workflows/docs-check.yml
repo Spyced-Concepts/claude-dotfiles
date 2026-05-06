@@ -1,0 +1,25 @@
+name: Documentation Check
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+      - functional-test
+      - "release/**"
+
+jobs:
+  check-docs:
+    name: Check documentation standards
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run documentation check
+        run: bash scripts/check-docs.sh
+
+      # On failure, the first step's output is already in the job log.
