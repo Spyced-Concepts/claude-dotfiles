@@ -170,6 +170,8 @@ When you add a rule, instruction, or convention, it should live in exactly one p
 
 **When in doubt, ask.** Never place a rule by assumption — the wrong tier means the rule is either missing on some machines or visible where it shouldn't be.
 
+**Hard rule for synced-rules repos:** Commit directly to `main` — no branches, no PRs. The synced-rules repo is a settings transfer mechanism between machines, not a development codebase. Every change should be immediately pullable by all machines. This applies on every machine, always.
+
 Type `--saverule` for interactive help placing a rule in the right location.
 
 ---

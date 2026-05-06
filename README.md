@@ -50,6 +50,8 @@ yourname/my-claude-config         ← your private repo; your config
 ~/.claude/machine.json            ← local paths; never committed anywhere
 ```
 
+**Hard rule: commit directly to `main` on your personal config repo — no branches, no PRs.** This repo is a settings transfer mechanism between your machines, not a development codebase. Changes go straight to `main` so every machine can pull them immediately.
+
 **Not sure where to start?** Once the public tool is set up, open Claude Code and say:
 
 > *"Help me set up a personal claude-config repo with my own commands and CLAUDE.md"*
