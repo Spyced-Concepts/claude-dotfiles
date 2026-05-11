@@ -143,7 +143,7 @@ claude-dotfiles/
 
 ```json
 {
-  "name": "macbook-pro",
+  "name": "home-mac",
   "os": "macos",
   "home": "/Users/yourname",
   "knowledge_root": "/Users/yourname",

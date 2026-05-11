@@ -19,7 +19,7 @@ Format: [Semantic Versioning](https://semver.org) — MAJOR.MINOR.PATCH
 
 ### Changed
 
-- Personal workflow commands (seclog, monthly-check, quarterly-review) removed from public repo — these belong in a private config repo, not a generic public tool
+- Personal workflow commands removed from public repo — these belong in a private config repo, not a generic public tool
 - `machine.json` schema and template updated with `command_prefix_enabled` and `command_prefix` fields
 - `examples/machine.json.example` updated to show command prefix configuration
 - ROADMAP updated: v1.4.0 is an early release; next scheduled June 2026 (v1.5.0)
@@ -57,7 +57,7 @@ Claude Code's CLI intercepts `/word` as built-in slash commands before messages 
 
 - **Recursive knowledge discovery** — `knowledge_root` in `machine.json` auto-discovers all subdirectories of a parent folder as knowledge directories; no need to add each one individually
 - **Project root** — `project_root` in `machine.json` clearly separates code artefacts from knowledge directories
-- **Built-in slash commands** — `commands/` directory ships four ready-to-use commands: `/seclog`, `/monthly-check`, `/quarterly-review`, `/update`
+- **Built-in slash commands** — `commands/` directory ships ready-to-use commands including `/update`; personal workflow commands belong in your private config repo
 - **Interactive setup** — `setup.sh` now guides you through knowledge root discovery, directory selection, and command installation with clear prompts and terminology
 - **Commands symlink** — `setup.sh` symlinks `~/.claude/commands/` to the repo so commands stay in sync with `update.sh`
 

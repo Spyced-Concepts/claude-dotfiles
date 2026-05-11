@@ -34,9 +34,9 @@
           "type": "boolean",
           "description": "Show the greeting only on the first session of each calendar day."
         },
-        "seclog_on_session_start": {
+        "security_review_on_session_start": {
           "type": "boolean",
-          "description": "Run /seclog automatically at the start of every session that does not begin with the full greeting."
+          "description": "Run a security review command automatically at the start of every session that does not begin with the full greeting."
         }
       }
     }
